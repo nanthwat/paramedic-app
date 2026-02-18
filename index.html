@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PARAMEDIC SCPHUB ID</title>
+    
+    <meta name="description" content="ระบบสารสนเทศและบัตรนักศึกษาดิจิทัล (Digital ID) หลักสูตรฉุกเฉินการแพทย์ วิทยาลัยการสาธารณสุขสิรินธร จ.อุบลราชธานี">
+    <meta property="og:title" content="PARAMEDIC SCPHUB ID">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary-grad: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            --primary-solid: #009688;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #6c757d;
+            --nav-bg: #ffffff;
+            --input-bg: #f8f9fa;
+            --border-color: rgba(0, 0, 0, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --modal-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary-grad: linear-gradient(135deg, #00897b 0%, #689f38 100%);
+            --primary-solid: #80cbc4;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #b0bec5;
+            --nav-bg: #1e1e1e;
+            --input-bg: #2d2d2d;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --modal-bg: #1e1e1e;
+        }
+
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #main-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 100px;
+        }
+
+        @media (min-width: 768px) {
+            #app-content .container { max-width: 900px; }
+        }
+
+        h1, h2, h3, h4, h5, h6, .btn { font-family: 'Kanit', sans-serif; }
+        
+        .glass-card { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            box-shadow: 0 4px 20px var(--shadow-color); 
+            border: 1px solid var(--border-color); 
+            overflow: hidden; 
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s; 
+            height: 100%; 
+        }
+        
+        @media (hover: hover) {
+            .glass-card:hover { 
+                transform: translateY(-5px); 
+                box-shadow: 0 10px 25px var(--shadow-color); 
+                cursor: pointer;
+            }
+        }
+        .glass-card:active { transform: scale(0.97); }
+
+        .icon-box { width: 50px; height: 50px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 22px; margin-bottom: 8px; transition: all 0.2s; }
+        .app-logo { width: 120px; height: 120px; object-fit: contain; border-radius: 50%; box-shadow: 0 4px 15px var(--shadow-color); background: white; }
+        
+        #splash-screen { position: fixed; inset: 0; background: var(--bg-color); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.6s ease; }
+        
+        #login-screen { 
+            position: fixed; inset: 0; background: var(--bg-color); z-index: 9000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            padding: 30px; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); overflow-y: auto; 
+        }
+        .login-container { width: 100%; max-width: 400px; }
+
+        #app-content { display: none; padding-top: 20px; animation: fadeIn 0.5s ease; }
+        #loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
+
+        .page-section { display: none; padding-bottom: 20px; animation: fadeIn 0.4s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; left: 0; width: 100%; height: 80px; 
+            background: var(--nav-bg); 
+            border-top-left-radius: 30px; border-top-right-radius: 30px; 
+            box-shadow: 0 -10px 40px var(--shadow-color); 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            padding: 0 10px 15px 10px; z-index: 1000; 
+            transition: background-color 0.3s;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                width: 500px; 
+                left: 50%; transform: translateX(-50%); 
+                border-radius: 30px; 
+                bottom: 20px; 
+                padding: 0 20px 15px 20px;
+                box-shadow: 0 10px 40px var(--shadow-color);
+            }
+        }
+
+        .nav-item { flex: 1; text-align: center; color: var(--text-muted); cursor: pointer; transition: all 0.3s; padding-bottom: 5px; }
+        .nav-item i { font-size: 22px; margin-bottom: 4px; display: block; transition: transform 0.2s;}
+        .nav-item span { font-size: 10px; font-weight: 500; display: block;}
+        .nav-item.active { color: var(--primary-solid); }
+        .nav-item:hover { color: var(--primary-solid); }
+        
+        .nav-center { position: relative; bottom: 30px; width: 70px; height: 70px; background: var(--primary-grad); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 25px rgba(0, 176, 155, 0.4); border: 5px solid white; color: white; font-size: 28px; transition: transform 0.2s; cursor: pointer; }
+        [data-theme="dark"] .nav-center { border-color: #2d2d2d; }
+        .nav-center:hover { transform: scale(1.1); }
+
+        .activity-card { border-left: 5px solid var(--primary-solid); }
+        .btn-join { background-color: var(--primary-solid); color: white; border-radius: 50px; font-size: 12px; padding: 5px 15px; }
+        .btn-join.joined { background-color: #e2e8f0; color: #718096; }
+        [data-theme="dark"] .btn-join.joined { background-color: #424242; color: #bdbdbd; }
+        
+        .faculty-list-item { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2px; display: flex; align-items: flex-start; }
+        .faculty-list-item:before { content: "•"; margin-right: 5px; color: var(--primary-solid); }
+        
+        .contact-link { text-decoration: none; color: var(--text-main); display: flex; align-items: center; padding: 10px; border-radius: 10px; transition: background 0.2s; }
+        .contact-link:active, .contact-link:hover { background-color: var(--border-color); }
+        .contact-icon { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin-right: 15px; color: white; }
+        
+        .user-photo-card { width: 80px; height: 80px; object-fit: cover; border-radius: 15px; border: 2px solid rgba(255,255,255,0.5); background-color: white; box-shadow: 0 4px 10px var(--shadow-color); }
+        
+        .modal-content { background-color: var(--modal-bg); color: var(--text-main); }
+        .form-control, .form-select { background-color: var(--input-bg); border-color: var(--border-color); color: var(--text-main); }
+        .form-control:focus, .form-select:focus { background-color: var(--input-bg); color: var(--text-main); border-color: var(--primary-solid); }
+        
+        .lockout-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 9500;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            padding: 30px; text-align: center;
+        }
+
+        .header-btn {
+            position: relative;
+            width: 40px; height: 40px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            color: var(--text-main);
+            transition: transform 0.2s, background-color 0.3s;
+            border: none;
+            margin-left: 10px;
+        }
+        .header-btn:active { transform: scale(0.95); }
+        .badge-count {
+            position: absolute; top: -2px; right: -2px;
+            background-color: #ff4757; color: white;
+            font-size: 10px; font-weight: bold;
+            width: 18px; height: 18px;
+            display: none; justify-content: center; align-items: center;
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+        }
+
+        .news-ticker-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        .news-ticker-content {
+            display: inline-block;
+            animation: ticker 30s linear infinite;
+            padding-left: 100%; 
+        }
+        .news-item { display: inline-block; margin-right: 50px; }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        [data-theme="dark"] .text-dark { color: #e0e0e0 !important; }
+        [data-theme="dark"] .bg-light { background-color: #2d2d2d !important; }
+        [data-theme="dark"] .bg-white { background-color: #1e1e1e !important; }
+        [data-theme="dark"] .app-logo { background-color: #2d2d2d; }
+
+        /* แก้ไขให้ Pop-up ทับหน้า Login (Login = 9000) */
+        .modal-backdrop { z-index: 9040 !important; }
+        .modal { z-index: 9050 !important; }
+    </style>
+</head>
+<body>
+
+    <div id="main-wrapper">
+        <div id="loading-overlay">
+            <div class="spinner-border text-success mb-3" role="status"></div>
+            <h6 class="fw-bold" id="loading-text" data-i18n="loading">กำลังตรวจสอบข้อมูล...</h6>
+            <small class="text-white-50" style="font-size: 10px;" data-i18n="connecting">(กำลังเชื่อมต่อกับฐานข้อมูล)</small>
+        </div>
+
+        <div id="lockout-overlay" class="lockout-overlay">
+            <div class="text-danger mb-3" style="font-size: 60px;"><i class="fa-solid fa-user-lock"></i></div>
+            <h4 class="fw-bold text-danger" data-i18n="lockout_title">บัญชีถูกระงับชั่วคราว</h4>
+            <p class="text-muted mb-4 small" data-i18n="lockout_msg">คุณใส่รหัสผิดเกิน 7 ครั้ง<br>กรุณาติดต่อเจ้าหน้าที่เพื่อขอรหัสปลดล็อค</p>
+            <a href="https://lin.ee/28QmmAd" target="_blank" class="btn btn-outline-success w-100 rounded-pill mb-4" style="max-width: 300px;"><i class="fa-brands fa-line me-2"></i> <span data-i18n="contact_admin">ติดต่อเจ้าหน้าที่ (Line)</span></a>
+            <div class="pt-3 border-top" style="width: 100%; max-width: 300px;"><small class="text-muted d-block mb-2 text-start" data-i18n="enter_unlock">ใส่รหัสปลดล็อก (จากเจ้าหน้าที่)</small><div class="input-group"><input type="password" id="unlockCodeInput" class="form-control form-control-lg text-center fw-bold text-danger" placeholder="XXXX" maxlength="6"><button class="btn btn-danger" type="button" onclick="handleUnlock()" data-i18n="btn_unlock">ปลดล็อก</button></div></div>
+        </div>
+
+        <div id="splash-screen">
+            <img src="https://app.trickle.so/storage/public/images/usr_1730489760000001/c7e22a4a-381f-4ab9-b0bf-4e0883be3b44.S__107692040_0" class="app-logo mb-4" style="animation: pulse 2s infinite;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+            <h2 class="fw-bold tracking-wider text-main mb-0">PARAMEDIC</h2>
+            <h5 class="letter-spacing-2 text-muted">SCPHUB ID</h5>
+        </div>
+
+        <div id="login-screen" style="transform: translateY(100%);">
+            <button class="header-btn position-absolute top-0 end-0 m-4" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="theme-icon-login"></i>
+            </button>
+            <div class="login-container">
+                <div class="text-center mb-4">
+                    <img src="https://app.trickle.so/storage/public/images/usr_1730489760000001/c7e22a4a-381f-4ab9-b0bf-4e0883be3b44.S__107692040_0" class="app-logo mb-3" style="width: 100px; height: 100px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                    <h3 class="fw-bold text-main" data-i18n="login_welcome">ยินดีต้อนรับ</h3>
+                    <p class="text-muted fw-bold" style="letter-spacing: 2px;">PARAMEDIC ID</p>
+                </div>
+                <div id="view-login-manual" style="display: block;">
+                    <form onsubmit="handleManualLogin(event)">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 mb-3" style="background-color: var(--card-bg);">
+                            <h6 class="text-primary fw-bold mb-3 text-center" data-i18n="login_header">เข้าสู่ระบบ (Login)</h6>
+                            <div class="mb-3"><label class="form-label small text-muted" data-i18n="label_id">รหัสนักศึกษา</label><input type="number" id="manualLoginId" class="form-control form-control-lg border-0" placeholder="6XXXXXX" required style="border-radius: 15px; background-color: var(--input-bg);"></div>
+                            <div class="mb-1"><label class="form-label small text-muted" data-i18n="label_pass">รหัสผ่าน</label><input type="password" id="manualLoginPass" class="form-control form-control-lg border-primary" placeholder="Password" required style="border-radius: 15px; background-color: var(--input-bg);"></div>
+                            <div class="d-flex justify-content-end mb-4"><a href="https://lin.ee/28QmmAd" target="_blank" class="text-secondary small text-decoration-none" style="font-size: 0.85rem;"><i class="fa-solid fa-circle-question me-1"></i><span data-i18n="forgot_pass">ลืมรหัสผ่าน?</span></a></div>
+                            <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: var(--primary-grad); border: none; font-size: 18px;" data-i18n="btn_login">เข้าสู่ระบบ</button>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="small text-muted mb-2" data-i18n="new_user_text">ยังไม่เคยใช้งานระบบ?</p>
+                            <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                <i class="fa-solid fa-user-plus me-2"></i><span data-i18n="btn_register">ลงทะเบียนใช้งานระบบ</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-content">
+            <div class="container">
+                <div id="page-home" class="page-section active">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center"><img src="https://app.trickle.so/storage/public/images/usr_1730489760000001/c7e22a4a-381f-4ab9-b0bf-4e0883be3b44.S__107692040_0" width="45" class="rounded-circle shadow-sm me-2" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'"><div><h6 class="fw-bold m-0 text-main" style="font-size: 0.9rem;">PARAMEDIC</h6><small class="text-muted" style="font-size: 0.7rem;">SCPHUB UBON</small></div></div>
+                        <div class="d-flex"><button class="header-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="theme-icon-home"></i></button><button class="header-btn" data-bs-toggle="modal" data-bs-target="#notificationModal"><i class="fa-regular fa-bell"></i><span class="badge-count" id="noti-badge">0</span></button></div>
+                    </div>
+                    <div class="glass-card mb-4 py-2 px-3 d-flex align-items-center">
+                        <div class="badge bg-danger bg-opacity-10 text-danger me-3 rounded-pill d-flex align-items-center" style="white-space: nowrap;"><i class="fa-solid fa-bullhorn me-2"></i> NEWS</div>
+                        <div class="news-ticker-wrapper w-100 text-primary small fw-bold"><div class="news-ticker-content" id="news-ticker-container"><span class="news-item text-muted">กำลังโหลดประกาศ...</span></div></div>
+                    </div>
+                    <div class="glass-card p-0 overflow-hidden mb-4 shadow-sm"><div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/DBzI8g6OLjU?rel=0" title="Paramedic" allowfullscreen style="border-radius: 0;"></iframe></div></div>
+                    <h6 class="fw-bold text-muted mb-3 mt-4 ps-2" data-i18n="home_quick_menu">เมนูลัด</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-4 col-lg-3"><div class="glass-card p-3 text-center" onclick="showPage('services')"><div class="icon-box mx-auto bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-layer-group"></i></div><h6 class="fw-bold mb-0" data-i18n="menu_services">บริการทั้งหมด</h6></div></div>
+                        <div class="col-6 col-md-4 col-lg-3"><div class="glass-card p-3 text-center" data-bs-toggle="modal" data-bs-target="#classroomSearchModal"><div class="icon-box mx-auto bg-info bg-opacity-10 text-info"><i class="fa-solid fa-magnifying-glass-location"></i></div><h6 class="fw-bold mb-0">ค้นหาห้องเรียน</h6></div></div>
+                        <div class="col-6 col-md-4 col-lg-3"><div class="glass-card p-3 text-center" onclick="toggleLanguage()"><div class="icon-box mx-auto bg-dark bg-opacity-10 text-dark"><i class="fa-solid fa-language"></i></div><h6 class="fw-bold mb-0" id="lang-btn-text">Language: TH</h6></div></div>
+                        <div class="col-6 col-md-4 col-lg-3"><div class="glass-card p-3 text-center" data-bs-toggle="modal" data-bs-target="#paymentModal"><div class="icon-box mx-auto" style="background-color: #f3e5f5; color: #9c27b0;"><i class="fa-solid fa-money-bill-wave"></i></div><h6 class="fw-bold mb-0">ชำระเงินรุ่น</h6></div></div>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-3 mt-4 ps-2 border-start border-4 border-warning">แหล่งข้อมูลภายนอก</h6>
+                    <div class="d-flex flex-column gap-3 mb-5">
+                        <div class="glass-card p-3 d-flex align-items-center" onclick="openServiceWeb('ส่องทางทุน', 'https://findstudentship.eef.or.th')"><div class="icon-box bg-success bg-opacity-10 text-success me-3 mb-0"><i class="fa-solid fa-hand-holding-dollar"></i></div><div><h6 class="fw-bold mb-1 text-main">ส่องทางทุน</h6><small class="text-muted">กองทุนเพื่อความเสมอภาคทางการศึกษา</small></div><div class="ms-auto text-secondary"><i class="fa-solid fa-chevron-right"></i></div></div>
+                        <div class="glass-card p-3 d-flex align-items-center" onclick="openServiceWeb('สมาคมนักปฏิบัติการฯ', 'https://www.thaiparamedics.com')"><div class="icon-box bg-primary bg-opacity-10 text-primary me-3 mb-0"><i class="fa-solid fa-user-doctor"></i></div><div><h6 class="fw-bold mb-1 text-main">สมาคมนักปฏิบัติการฯ</h6><small class="text-muted">สมาคมนักปฏิบัติการฉุกเฉินการแพทย์</small></div><div class="ms-auto text-secondary"><i class="fa-solid fa-chevron-right"></i></div></div>
+                        <div class="glass-card p-3 d-flex align-items-center" onclick="openServiceWeb('กองสถานพยาบาลฯ', 'https://mrd.hss.moph.go.th/mrd1_hss/')"><div class="icon-box bg-warning bg-opacity-10 text-warning me-3 mb-0"><i class="fa-solid fa-hospital"></i></div><div><h6 class="fw-bold mb-1 text-main">กองสถานพยาบาลฯ</h6><small class="text-muted">และประกอบโรคศิลปะ</small></div><div class="ms-auto text-secondary"><i class="fa-solid fa-chevron-right"></i></div></div>
+                    </div>
+                </div>
+
+                <div id="page-services" class="page-section">
+                    <div id="service-menu-view">
+                        <div class="text-center mb-4"><h5 class="fw-bold text-main" data-i18n="service_title">บริการนักศึกษา</h5><small class="text-muted" data-i18n="service_subtitle">เลือกเมนูที่ต้องการใช้งาน</small></div>
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ดูเกรด (MIS)', 'http://mis.scphub.ac.th/mis/info/infosys.php')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-primary bg-opacity-10 text-primary"><i class="fa-solid fa-graduation-cap"></i></div><div class="fw-bold small" data-i18n="svc_grade">ดูเกรด (MIS)</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="alert('Coming Soon')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e3f2fd; color: #1976d2;"><i class="fa-solid fa-calendar-days"></i></div><div class="fw-bold small" data-i18n="svc_schedule">ตารางเรียน</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3"><div class="glass-card p-3 text-center" data-bs-toggle="modal" data-bs-target="#studentSearchModal"><div class="icon-box mx-auto" style="background-color: #f3e5f5; color: #7b1fa2;"><i class="fa-solid fa-users-viewfinder"></i></div><div class="fw-bold small">ค้นหานักศึกษา</div></div></div>
+                            
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openEquipModal()">
+                                <div class="glass-card p-3 text-center">
+                                    <div class="icon-box mx-auto" style="background-color: #e0f7fa; color: #00acc1;">
+                                        <i class="fa-solid fa-toolbox"></i>
+                                    </div>
+                                    <div class="fw-bold small" data-i18n="svc_equip">ยืม-คืนอุปกรณ์</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-4 col-lg-3" id="adminCheckEquipBtn" style="display: none;">
+                                <div class="glass-card p-3 text-center" onclick="openAdminCheck()">
+                                    <div class="icon-box mx-auto bg-danger bg-opacity-10 text-danger">
+                                        <i class="fa-solid fa-clipboard-check"></i>
+                                    </div>
+                                    <div class="fw-bold small">ตรวจสอบคืนของ</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6 col-md-4 col-lg-3" onclick="alert('Coming Soon')">
+                                <div class="glass-card p-3 text-center">
+                                    <div class="icon-box mx-auto" style="background-color: #e8f5e9; color: #43a047;">
+                                        <i class="fa-solid fa-piggy-bank"></i>
+                                    </div>
+                                    <div class="fw-bold small" data-i18n="svc_fund_collect">เก็บเงินห้อง</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="alert('Coming Soon')">
+                                <div class="glass-card p-3 text-center">
+                                    <div class="icon-box mx-auto" style="background-color: #fff3e0; color: #fb8c00;">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <div class="fw-bold small" data-i18n="svc_fund_withdraw">เบิกเงินห้อง</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ระบบลา', 'https://drive.google.com/drive/folders/0B3V2eGtK8swxcHozbUpyZ0V1eE0?resourcekey=0-awRqjWp92rcTnr__2YZw7Q')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #fbe9e7; color: #d84315;"><i class="fa-solid fa-bed-pulse"></i></div><div class="fw-bold small" data-i18n="svc_leave">ระบบลา</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ผ่อนผันทหาร', 'https://drive.google.com/file/d/140PPbr6Yxy4zLN5m_4ZCNo4x76oh5jDB/view')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-success bg-opacity-10 text-success"><i class="fa-solid fa-person-military-rifle"></i></div><div class="fw-bold small" data-i18n="svc_military">ผ่อนผันทหาร</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="alert('Coming Soon')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-secondary bg-opacity-10 text-secondary"><i class="fa-solid fa-folder-open"></i></div><div class="fw-bold small" data-i18n="svc_docs">เอกสารโครงการ</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('สมัครกรรมการ', 'https://forms.gle/vsqsEv42jM9fVRmw5')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e8eaf6; color: #3f51b5;"><i class="fa-solid fa-hand-point-up"></i></div><div class="fw-bold small" data-i18n="svc_committee">สมัครกรรมการ</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ขอทำบัตร', 'https://forms.gle/xtHejew8Wot87DUX8')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #3f51b5; color: white;"><i class="fa-solid fa-id-card"></i></div><div class="fw-bold small" data-i18n="svc_card_req">ขอทำบัตร</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ออกบัตรใหม่', 'https://forms.gle/Va1ao9e69r7U4qtq5')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-address-card"></i></div><div class="fw-bold small" data-i18n="svc_card_new">ออกบัตรใหม่</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" data-bs-toggle="modal" data-bs-target="#committeeModal"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #ede7f6; color: #673ab7;"><i class="fa-solid fa-users-gear"></i></div><div class="fw-bold small" data-i18n="svc_comm_list">คณะกรรมการ</div></div></div>
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('เว็บไซต์ สพฉ.', 'https://www.niems.go.th/1/SubWebsite/?id=38')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e3f2fd; color: #1976d2;"><i class="fa-solid fa-globe"></i></div><div class="fw-bold small" data-i18n="svc_niems">เว็บไซต์ สพฉ.</div></div></div>
+                        </div>
+                    </div>
+                    <div id="activity-list-view" style="display: none;">
+                         <div class="d-flex align-items-center mb-3"><button class="btn btn-sm btn-light rounded-circle me-2" onclick="toggleActivityView(false)"><i class="fa-solid fa-arrow-left"></i></button><h5 class="fw-bold m-0" data-i18n="class_activity_title">ชั้นเรียน / กิจกรรม</h5></div>
+                        <div class="glass-card p-3 mb-3 activity-card"><div class="d-flex justify-content-between"><h6 class="fw-bold" data-i18n="cpr_title">อบรม CPR ประจำปี</h6><span class="badge bg-success bg-opacity-10 text-success" data-i18n="status_open">เปิดรับ</span></div><p class="small text-muted mb-2"><i class="fa-regular fa-calendar me-1"></i> 20 Oct 2023 | Room 1</p><div class="d-flex justify-content-between align-items-center"><small class="text-secondary"><i class="fa-solid fa-user-group me-1"></i> 45/50</small><button class="btn btn-join" onclick="joinActivity(this)" data-i18n="btn_register_event">ลงทะเบียน</button></div></div>
+                    </div>
+                </div>
+
+                <div id="page-faculty" class="page-section">
+                    <div class="text-center mb-4"><h5 class="fw-bold text-main" data-i18n="faculty_title">คณาจารย์ประจำหลักสูตร</h5></div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-nurse"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.ดร.ดวงกมล หน่อแก้ว</h6><div class="faculty-list-item">ปร.ด.ศึกษาศาสตร์</div><div class="faculty-list-item">วท.บ.พยาบาลศาสตร์</div></div></div></div></div>
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-nurse"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.ดร.สุคนธ์ทิพย์ อรุณกมลพัฒน์</h6><div class="faculty-list-item">ปร.ด.วิทยาศาสตร์สุขภาพ</div><div class="faculty-list-item">พย.ม.เวชปฏิบัติชุมชน</div><div class="faculty-list-item">ป.กศ.พยาบาลศาสตร์และการผดุงครรภ์ชั้นสูง</div></div></div></div></div>
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-success bg-opacity-10 text-success d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-nurse"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.พว.กันยารัตน์ ชิราวุฒิ</h6><div class="faculty-list-item">พยาบาลศาสตร์มหาบัณฑิต</div><div class="faculty-list-item">พยาบาลศาสตร์บัณฑิต</div></div></div></div></div>
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-tie"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.นฉพ.วรากร นามจันทร์</h6><div class="faculty-list-item">วท.บ.ฉุกเฉินการแพทย์</div></div></div></div></div>
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-info bg-opacity-10 text-info d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-doctor"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.นพ.ชัยพร บุญศรี</h6><div class="faculty-list-item">แพทยศาสตร์บัณฑิต</div><div class="faculty-list-item">วุฒิบัตรสาขาเวชศาสตร์ฉุกเฉิน</div></div></div></div></div>
+                        <div class="col-12 col-md-6 col-lg-4"><div class="glass-card p-3"><div class="d-flex align-items-start"><div class="me-3"><div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex justify-content-center align-items-center" style="width: 50px; height: 50px;"><i class="fa-solid fa-user-nurse"></i></div></div><div><h6 class="fw-bold text-main mb-1">อ.พว.ประภาพร สุวรัตน์ชัย</h6><div class="faculty-list-item">ปร.ด.วิทยาศาสตร์ (เวชศาสตร์ชุมชน)</div><div class="faculty-list-item">วท.ม.วิทยาการระบาด</div><div class="faculty-list-item">การพยาบาลเฉพาะทาง พยาบาลเวชปฏิบัติฉุกเฉิน</div></div></div></div></div>
+                    </div>
+                </div>
+                
+                <div id="page-contact" class="page-section">
+                    <div class="text-center mb-4"><h5 class="fw-bold text-main" data-i18n="contact_title">ติดต่อเรา</h5></div>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6"><div class="glass-card p-3 position-relative"><button onclick="copyAddress()" class="btn btn-sm btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow-sm text-secondary" style="width:35px; height:35px;" title="คัดลอกที่อยู่"><i class="fa-regular fa-copy"></i></button><h6 class="fw-bold text-primary mb-3 ps-2 border-start border-4 border-primary" data-i18n="contact_main">ข้อมูลติดต่อหลัก</h6><a href="tel:045210270" class="contact-link"><div class="contact-icon bg-primary"><i class="fa-solid fa-phone"></i></div><div><small class="text-muted d-block" style="font-size: 0.75rem;" data-i18n="label_phone">เบอร์โทรศัพท์</small><span class="fw-bold text-main">0 4521 0270–74</span></div></a></div></div>
+                        <div class="col-12 col-md-6"><div class="glass-card p-3 position-relative"><button onclick="copyAddress()" class="btn btn-sm btn-light rounded-circle position-absolute top-0 end-0 m-3 shadow-sm text-secondary" style="width:35px; height:35px;" title="คัดลอกที่อยู่"><i class="fa-regular fa-copy"></i></button><div class="d-flex align-items-start"><div class="contact-icon bg-secondary text-white mt-1"><i class="fa-solid fa-map-location-dot"></i></div><div><h6 class="fw-bold text-main mb-1" data-i18n="college_name">วิทยาลัยการสาธารณสุขสิรินธร จ.อุบลฯ</h6><p class="text-muted small m-0" style="line-height: 1.6;" data-i18n="college_addr">เลขที่ 187 หมู่ 10 ถนนสถลมาร์ค<br>ตำบลธาตุ อำเภอวารินชำราบ<br>จังหวัดอุบลราชธานี 34190</p></div></div></div></div>
+                    </div>
+                    <h6 class="fw-bold text-muted mb-3 mt-4 ps-2 border-start border-4 border-success">ช่องทางออนไลน์ & โซเชียลมีเดีย</h6>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://www.facebook.com/share/16FXvyxKzY/?mibextid=wwXIfr', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #f3e5f5; color: #673ab7;"><i class="fa-solid fa-file-pen"></i></div><div class="fw-bold small">งานทะเบียน</div></div></div>
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://www.facebook.com/share/17rnLvmJzZ/?mibextid=wwXIfr', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #ffebee; color: #d32f2f;"><i class="fa-solid fa-star-of-life"></i></div><div class="fw-bold small">หลักสูตรฉุกเฉินฯ</div></div></div>
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://www.facebook.com/share/1TTovXBBYh/?mibextid=wwXIfr', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e0f2f1; color: #00897b;"><i class="fa-solid fa-school"></i></div><div class="fw-bold small">เพจ วสส.อุบล</div></div></div>
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://www.facebook.com/share/1Bg6wutRWi/?mibextid=wwXIfr', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #fff8e1; color: #ffa000;"><i class="fa-solid fa-users-rays"></i></div><div class="fw-bold small">สโมสรนักศึกษา</div></div></div>
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://lin.ee/28QmmAd', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-dark bg-opacity-10 text-dark"><i class="fa-solid fa-headset"></i></div><div class="fw-bold small" data-i18n="svc_admin">ติดต่อผู้ดูแล</div></div></div>
+                        <div class="col-6 col-md-4 col-lg-3" onclick="window.open('https://drive.google.com/file/d/1UqghhaSVT5GDFypT2qhl2MXOE6KwgX60/view?usp=drivesdk', '_blank')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e1bee7; color: #8e24aa;"><i class="fa-solid fa-book"></i></div><div class="fw-bold small">หนังสือหลักสูตร</div></div></div>
+                    </div>
+                </div>
+                
+                <div id="page-account" class="page-section">
+                    <div class="text-center mb-4"><h5 class="fw-bold text-main" data-i18n="account_title">บัญชีผู้ใช้</h5></div>
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <div id="account-main-view">
+                                <div class="mb-4 position-relative overflow-hidden p-4 text-white shadow" style="background: var(--primary-grad); border-radius: 20px;">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div><small class="text-uppercase letter-spacing-2 opacity-75">Paramedic Student</small><h4 class="fw-bold mt-1" id="card-name">ชื่อ นามสกุล</h4><p class="m-0 opacity-75" id="card-id">6XXXXXX</p><span class="badge bg-white text-dark mt-1" id="card-sec" style="display:none;">-</span></div>
+                                        <div class="position-relative"><img id="card-user-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo-card bg-white"><button onclick="document.getElementById('photoUploadInput').click()" class="btn btn-sm btn-light rounded-circle position-absolute" style="bottom: 0; right: 0; width: 30px; height: 30px; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"><i class="fa-solid fa-camera" style="font-size: 12px;"></i></button><input type="file" id="photoUploadInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)"></div>
+                                    </div>
+                                    <div class="mt-4 pt-3 border-top border-white border-opacity-25 d-flex justify-content-between"><div><small class="d-block opacity-50" style="font-size: 10px;" data-i18n="label_phone">เบอร์โทรศัพท์</small><span class="fw-bold" id="card-phone">-</span></div><div class="text-end"><small class="d-block opacity-50" style="font-size: 10px;" data-i18n="label_ice">ฉุกเฉิน (ICE)</small><span class="fw-bold text-warning" id="card-emer">-</span></div></div>
+                                    <button onclick="showQRCode()" class="btn btn-sm btn-light rounded-circle position-absolute" style="top: 15px; right: 15px; width: 35px; height: 35px; padding: 0; z-index: 10;" title="Show QR Code"><i class="fa-solid fa-qrcode text-dark"></i></button>
+                                </div>
+                                <div class="glass-card p-3 mb-3" id="extra-info-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold text-primary m-0" data-i18n="health_info_title">ข้อมูลสุขภาพ & ติดต่อ</h6><button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="toggleRegisterInfoView(true)" style="width: 32px; height: 32px; padding: 0;"><i class="fa-solid fa-pen" style="font-size: 12px;"></i></button></div>
+                                    <div class="row g-2"><div class="col-6"><small class="text-muted d-block" data-i18n="label_blood">กรุ๊ปเลือด</small><span class="fw-bold text-danger" id="display-blood">-</span></div><div class="col-6"><small class="text-muted d-block" data-i18n="label_addr">หอพัก</small><span class="fw-bold text-main" id="display-addr">-</span></div><div class="col-12 mt-2 border-top pt-2"><small class="text-muted d-block" data-i18n="label_disease">โรคประจำตัว</small><span class="fw-bold text-main" id="display-disease">-</span></div></div>
+                                </div>
+                                <div class="glass-card"><div class="list-group list-group-flush"><button class="list-group-item list-group-item-action py-3 border-0 bg-transparent text-main" onclick="openChangePasswordModal()"><i class="fa-solid fa-key me-3 text-secondary"></i> <span data-i18n="btn_change_pass">เปลี่ยนรหัสผ่าน</span></button><button class="list-group-item list-group-item-action py-3 border-0 text-danger bg-transparent" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-3"></i> <span data-i18n="btn_logout">ออกจากระบบ</span></button></div></div>
+                            </div>
+                            <div id="register-info-view" style="display: none;">
+                                <div class="d-flex align-items-center mb-3"><button class="btn btn-sm btn-light rounded-circle me-2" onclick="toggleRegisterInfoView(false)"><i class="fa-solid fa-arrow-left"></i></button><h5 class="fw-bold m-0 text-main" data-i18n="edit_info_title">แก้ไขข้อมูลสุขภาพ</h5></div>
+                                <div class="card shadow-sm border-0 p-3 mx-auto" style="max-width: 600px; background-color: var(--card-bg);"><form onsubmit="handleInfoUpdate(event)"><div class="mb-3"><label class="form-label small text-muted" data-i18n="label_id">รหัสนักศึกษา</label><input type="number" id="infoStudentId" class="form-control bg-light border-0" readonly></div><div class="mb-3"><label class="form-label small text-muted" data-i18n="label_phone">เบอร์ติดต่อ</label><input type="tel" id="infoPhone" class="form-control" required></div><div class="mb-3"><label class="form-label small text-muted" data-i18n="label_disease">โรคประจำตัว</label><input type="text" id="infoDisease" class="form-control" placeholder="-"></div><div class="mb-3"><label class="form-label small text-muted" data-i18n="label_emer">เบอร์ฉุกเฉิน (ICE)</label><input type="tel" id="infoEmer" class="form-control" required></div><div class="mb-3"><label class="form-label small text-muted" data-i18n="label_addr">ที่อยู่ / หอพัก</label><textarea id="infoAddr" class="form-control" rows="3" placeholder="ระบุที่อยู่ หรือ ชื่อหอพัก"></textarea></div><button type="submit" class="btn btn-primary w-100 rounded-pill" data-i18n="btn_save_local">บันทึกข้อมูล (ลงระบบ)</button></form></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="adminCheckModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-main"><i class="fa-solid fa-clipboard-check me-2 text-danger"></i>ตรวจสอบสถานะอุปกรณ์</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="adminLoading" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="small text-muted mt-2">กำลังโหลดข้อมูล...</p>
+                        </div>
+                        <div id="adminContent" style="display: none; max-height: 400px; overflow-y: auto;">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="committeeModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">คณะกรรมการชั้นปี</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="list-group list-group-flush"><div class="list-group-item border-0 px-0 bg-transparent"><div class="d-flex align-items-center"><div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-3"><i class="fa-solid fa-user-tie"></i></div><div><h6 class="fw-bold mb-0 text-main">นายยุทธนันท์ สอฮอง</h6><small class="text-muted">ประธานชั้นปี</small></div></div></div><div class="list-group-item border-0 px-0 bg-transparent"><div class="d-flex align-items-center"><div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-3"><i class="fa-solid fa-user-group"></i></div><div><h6 class="fw-bold mb-0 text-main">นายนันทวัฒน์ แก้วบัวดี</h6><small class="text-muted">รองประธานชั้นปี</small></div></div></div><div class="list-group-item border-0 px-0 bg-transparent"><div class="d-flex align-items-center"><div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-3"><i class="fa-solid fa-user-group"></i></div><div><h6 class="fw-bold mb-0 text-main">นางสาวสุพัตรา คำภา</h6><small class="text-muted">รองประธานชั้นปี</small></div></div></div><div class="list-group-item border-0 px-0 bg-transparent"><div class="d-flex align-items-center"><div class="rounded-circle bg-warning bg-opacity-10 text-warning p-3 me-3"><i class="fa-solid fa-book-open-reader"></i></div><div><h6 class="fw-bold mb-0 text-main">นางสาวธิดารัตน์ ล่ำสัน</h6><small class="text-muted">เลขานุการชั้นปี</small></div></div></div></div></div></div></div></div>
+        <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">ชำระเงินชั้นปี</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body text-center pt-2 pb-4"><div class="mb-3"><img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/scb_thailand_logo_icon_168894.png" alt="SCB Logo" style="width: 80px; height: 80px; object-fit: contain;"></div><h5 class="fw-bold text-main mb-1">ธนาคารไทยพาณิชย์</h5><div class="bg-light rounded-4 p-3 mt-3 position-relative"><h2 class="fw-bold text-primary mb-0" id="bankAccNo">869-2-55912-0</h2><small class="text-muted">เลขที่บัญชี</small></div><button onclick="copyPaymentInfo()" class="btn btn-primary w-100 rounded-pill mt-3 fw-bold"><i class="fa-regular fa-copy me-2"></i> คัดลอกเลขบัญชี</button></div></div></div></div>
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">การแจ้งเตือน</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="list-group list-group-flush" id="notification-list"><div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm mb-2"></div><p class="small mb-0">กำลังโหลด...</p></div></div></div></div></div></div>
+        <div class="modal fade" id="studentSearchModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0"><h5 class="modal-title fw-bold">ค้นหานักศึกษา</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form onsubmit="handleStudentSearch(event)"><div class="input-group mb-3"><input type="text" id="studentSearchInput" class="form-control" placeholder="ชื่อ หรือ รหัสนักศึกษา" required><button class="btn btn-primary" type="submit"><i class="fa-solid fa-search"></i></button></div></form><div id="studentSearchResult" class="text-center py-4" style="max-height: 300px; overflow-y: auto;"><div class="text-muted opacity-50"><i class="fa-solid fa-user-magnifying-glass fa-3x mb-2"></i><p class="small">กรอกข้อมูลเพื่อค้นหา</p></div></div></div></div></div></div>
+        <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">QR Code นักศึกษา</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body text-center py-4"><div id="qrcode-container" class="d-flex justify-content-center mb-3"></div><p class="text-muted small mb-0">ใช้สำหรับสแกนเพื่อยืนยันตัวตน</p></div></div></div></div>
+        <div class="modal fade" id="classroomSearchModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0"><h5 class="modal-title fw-bold">ค้นหาห้องเรียน</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form id="searchForm" onsubmit="handleClassroomSearch(event)"><div class="row g-2"><div class="col-9"><input type="text" id="searchSubject" class="form-control" placeholder="ชื่อวิชา (เช่น กายวิภาค)" required></div><div class="col-3"><button type="submit" class="btn btn-primary w-100 rounded-pill"><i class="fa-solid fa-search me-2"></i> ค้นหา</button></div></div></form><hr class="opacity-10 my-4"><div id="searchResultArea"><div class="text-center text-muted py-4"><i class="fa-regular fa-calendar-check fa-2x mb-2 opacity-50"></i><p class="small">กรอกชื่อวิชาเพื่อค้นหา</p></div></div></div></div></div></div>
+        <div class="modal fade" id="serviceWebModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered"><div class="modal-content" style="height: 90vh; border-radius: 20px; overflow: hidden;"><div class="modal-header border-bottom shadow-sm py-2"><h5 class="modal-title fw-bold fs-6" id="serviceWebTitle">บริการ</h5><div class="d-flex align-items-center"><a href="#" id="serviceWebLink" target="_blank" class="btn btn-sm btn-light me-2 text-primary rounded-pill"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="d-none d-sm-inline">เปิดภายนอก</span></a><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div></div><div class="modal-body p-0 bg-light position-relative"><div id="serviceWebLoading" class="position-absolute top-50 start-50 translate-middle text-center"><div class="spinner-border text-primary mb-2" role="status"></div><div class="small text-muted">กำลังโหลด...</div></div><iframe id="serviceWebFrame" src="" style="width:100%; height:100%; border:none; opacity: 0; transition: opacity 0.3s;"></iframe></div></div></div></div>
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-4 border-0"><div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold">เปลี่ยนรหัสผ่าน</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form onsubmit="handleChangePassword(event)"><div class="mb-3" id="divOldPass"><label class="small text-muted" data-i18n="label_old_pass">รหัสผ่านเดิม</label><input type="password" id="oldPass" class="form-control rounded-3" required></div><div class="mb-3"><label class="small text-muted" data-i18n="label_new_pass">รหัสผ่านใหม่</label><input type="password" id="newPass" class="form-control rounded-3" required></div><button type="submit" class="btn btn-success w-100 rounded-3" data-i18n="btn_save">บันทึก</button></form></div></div></div></div>
+        
+        <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-danger">ยืนยันการออกจากระบบ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <p class="mb-0 fw-bold" data-i18n="logout_confirm_msg">คุณต้องการออกจากระบบใช่หรือไม่?</p>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center pt-0 pb-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" onclick="confirmLogout()">ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="loginSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fa-regular fa-circle-check text-success" style="font-size: 65px; animation: pulse 1s infinite;"></i>
+                        </div>
+                        <h4 class="fw-bold text-success mb-2">เข้าสู่ระบบสำเร็จ!</h4>
+                        <p class="text-muted mb-4 small">ยินดีต้อนรับเข้าสู่ระบบ Paramedic ID</p>
+                        <button type="button" class="btn btn-success w-75 rounded-pill shadow-sm fw-bold" onclick="finishLogin()">
+                            ตกลง (OK)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="loginFailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fa-regular fa-circle-xmark text-danger" style="font-size: 65px; animation: pulse 1s infinite;"></i>
+                        </div>
+                        <h4 class="fw-bold text-danger mb-2">เข้าสู่ระบบไม่สำเร็จ</h4>
+                        <p class="text-muted mb-4 small">รหัสนักศึกษา หรือรหัสผ่านไม่ถูกต้อง<br>โปรดลองใหม่อีกครั้ง</p>
+                        <button type="button" class="btn btn-danger w-75 rounded-pill shadow-sm fw-bold" data-bs-dismiss="modal">
+                            ลองใหม่อีกครั้ง
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="changePassSuccessModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fa-regular fa-circle-check text-success" style="font-size: 65px; animation: pulse 1s infinite;"></i>
+                        </div>
+                        <h4 class="fw-bold text-success mb-2">เปลี่ยนรหัสผ่านสำเร็จ</h4>
+                        <p class="text-muted mb-4 small">กรุณาเข้าสู่ระบบใหม่ด้วยรหัสผ่านล่าสุด</p>
+                        <button type="button" class="btn btn-success w-75 rounded-pill shadow-sm fw-bold" onclick="finishLogout()">
+                            ตกลง (OK)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="equipSuccessModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-body text-center py-5">
+                        <div class="mb-3">
+                            <i class="fa-regular fa-circle-check text-success" style="font-size: 65px; animation: pulse 1s infinite;"></i>
+                        </div>
+                        <h4 class="fw-bold text-success mb-2">บันทึกสำเร็จ!</h4>
+                        <p class="text-muted mb-4 small" id="equipSuccessMsg">ทำรายการเรียบร้อยแล้ว</p>
+                        <button type="button" class="btn btn-success w-75 rounded-pill shadow-sm fw-bold" data-bs-dismiss="modal">
+                            ตกลง (OK)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-main">ลงทะเบียนใช้งานระบบ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
+                            
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">ข้อมูลส่วนตัว</label>
+                                <div class="input-group mb-2 shadow-sm">
+                                    <span class="input-group-text bg-light text-muted fw-bold border-0">นศ.ฉพ.</span>
+                                    <select class="form-select border-0" id="regTitle" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                        <option value="" disabled selected>คำนำหน้า</option>
+                                        <option value="นาย">นาย</option>
+                                        <option value="นางสาว">นางสาว</option>
+                                        <option value="นาง">นาง</option>
+                                    </select>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6"><input type="text" id="regFirstName" class="form-control border-0 shadow-sm" placeholder="ชื่อ" required style="background-color: var(--input-bg); color: var(--text-main);"></div>
+                                    <div class="col-6"><input type="text" id="regLastName" class="form-control border-0 shadow-sm" placeholder="สกุล" required style="background-color: var(--input-bg); color: var(--text-main);"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">รหัสนักศึกษา</label>
+                                <input type="number" id="regStudentId" class="form-control border-0 shadow-sm" placeholder="6XXXXXX" required style="background-color: var(--input-bg); color: var(--text-main);">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">วัน/เดือน/ปีเกิด (ใช้ พ.ศ. เท่านั้น)</label>
+                                <div class="row g-2">
+                                    <div class="col-3">
+                                        <select id="regDobDay" class="form-select border-0 shadow-sm" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                            <option value="" disabled selected>วัน</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-5">
+                                        <select id="regDobMonth" class="form-select border-0 shadow-sm" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                            <option value="" disabled selected>เดือน</option>
+                                            <option value="01">มกราคม</option>
+                                            <option value="02">กุมภาพันธ์</option>
+                                            <option value="03">มีนาคม</option>
+                                            <option value="04">เมษายน</option>
+                                            <option value="05">พฤษภาคม</option>
+                                            <option value="06">มิถุนายน</option>
+                                            <option value="07">กรกฎาคม</option>
+                                            <option value="08">สิงหาคม</option>
+                                            <option value="09">กันยายน</option>
+                                            <option value="10">ตุลาคม</option>
+                                            <option value="11">พฤศจิกายน</option>
+                                            <option value="12">ธันวาคม</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select id="regDobYear" class="form-select border-0 shadow-sm" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                            <option value="" disabled selected>ปี พ.ศ.</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">ที่อยู่ที่ติดต่อได้</label>
+                                <textarea id="regAddress" class="form-control border-0 shadow-sm" rows="2" required style="background-color: var(--input-bg); color: var(--text-main);"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">โรคประจำตัว (ถ้าไม่มีให้ระบุ -)</label>
+                                <input type="text" id="regDisease" class="form-control border-0 shadow-sm" placeholder="ระบุโรคประจำตัว" required style="background-color: var(--input-bg); color: var(--text-main);">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">หมู่เลือด</label>
+                                <select id="regBloodGroup" class="form-select border-0 shadow-sm mb-2" onchange="toggleOtherBloodGroup()" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                    <option value="" disabled selected>เลือกหมู่เลือด</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="AB">AB</option>
+                                    <option value="O">O</option>
+                                    <option value="Other">อื่นๆ โปรดระบุ..</option>
+                                </select>
+                                <input type="text" id="regBloodGroupOther" class="form-control border-0 shadow-sm" placeholder="โปรดระบุหมู่เลือดของคุณ" style="display: none; background-color: var(--input-bg); color: var(--text-main);">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">ข้อมูลการติดต่อ</label>
+                                <input type="tel" id="regPhone" class="form-control border-0 shadow-sm mb-2" placeholder="10. โทรศัพท์มือถือ" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                <input type="tel" id="regEmer1" class="form-control border-0 shadow-sm mb-2" placeholder="11. โทรศัพท์ฉุกเฉิน 1" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                <input type="tel" id="regEmer2" class="form-control border-0 shadow-sm" placeholder="12. โทรศัพท์ฉุกเฉิน 2 (ถ้ามี)" style="background-color: var(--input-bg); color: var(--text-main);">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">ตั้งรหัสผ่านสำหรับเข้าสู่ระบบ</label>
+                                <input type="password" id="regPassword" class="form-control border-0 shadow-sm mb-2" placeholder="13. ตั้งรหัสผ่าน" required minlength="6" style="background-color: var(--input-bg); color: var(--text-main);">
+                                <input type="password" id="regConfirmPassword" class="form-control border-0 shadow-sm" placeholder="14. ยืนยันรหัสผ่าน" required minlength="6" style="background-color: var(--input-bg); color: var(--text-main);">
+                                <div id="passwordMatchError" class="text-danger small mt-2 fw-bold" style="display: none;"><i class="fa-solid fa-triangle-exclamation"></i> รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!</div>
+                            </div>
+
+                            <div class="mb-4 form-check mt-4 p-3 rounded-3" style="background-color: rgba(0, 150, 136, 0.1);">
+                                <input type="checkbox" class="form-check-input ms-0 me-2" id="regPdpa" required style="border-color: var(--primary-solid);">
+                                <label class="form-check-label small text-main" for="regPdpa" style="font-size: 0.8rem; line-height: 1.4;">
+                                    ข้าพเจ้ายินยอมให้ใช้ข้อมูลส่วนบุคคลตาม พรบ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) เพื่อใช้ประโยชน์ในระบบสารสนเทศและการจัดการศึกษาของหลักสูตรฉุกเฉินการแพทย์เท่านั้น
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: var(--primary-grad); border: none; font-size: 16px;">ยืนยันการลงทะเบียน</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="equipModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-main"><i class="fa-solid fa-toolbox me-2 text-info"></i>ระบบยืม-คืนอุปกรณ์</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="equipForm" onsubmit="handleEquipSubmit(event)">
+                            
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">1. รายการที่ต้องการ</label>
+                                <select class="form-select border-0 shadow-sm" id="equipAction" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                    <option value="" disabled selected>เลือก (ยืม หรือ คืน)</option>
+                                    <option value="borrow">ยืมอุปกรณ์ (Borrow)</option>
+                                    <option value="return">คืนอุปกรณ์ (Return)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">2. ชื่ออุปกรณ์ที่ต้องการ</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-light text-muted border-0"><i class="fa-solid fa-stethoscope"></i></span>
+                                    <input type="text" id="equipType" class="form-control border-0" placeholder="โปรดระบุชื่ออุปกรณ์..." required style="background-color: var(--input-bg); color: var(--text-main);">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">3. ชื่อผู้ยืม/คืน</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-light text-muted border-0"><i class="fa-solid fa-user"></i></span>
+                                    <input type="text" id="equipName" class="form-control border-0" readonly style="background-color: #e9ecef; color: #495057; font-weight: bold;">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">4. วันที่ทำรายการ (วัน/เดือน/ปี)</label>
+                                <input type="date" id="equipDate" class="form-control border-0 shadow-sm" required style="background-color: var(--input-bg); color: var(--text-main);">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="small text-muted mb-1">5. อีเมลในการรับแจ้งเตือน</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-light text-muted border-0"><i class="fa-solid fa-envelope"></i></span>
+                                    <input type="email" id="equipEmail" class="form-control border-0" placeholder="example@email.com" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                </div>
+                                <small class="text-danger mt-1 d-block" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกอีเมลที่ใช้งานจริง เพื่อรับหลักฐานการทำรายการ!</small>
+                            </div>
+                            
+                            <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: var(--primary-grad); border: none; font-size: 16px;">ยืนยันการทำรายการ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('services')" id="nav-services"><i class="fa-solid fa-layer-group"></i><span data-i18n="nav_services">บริการ</span></div>
+            <div class="nav-item" onclick="showPage('contact')" id="nav-contact"><i class="fa-solid fa-address-book"></i><span data-i18n="nav_contact">ติดต่อ</span></div>
+            <div class="nav-center" onclick="showPage('home')"><i class="fa-solid fa-house"></i></div>
+            <div class="nav-item" onclick="showPage('faculty')" id="nav-faculty"><i class="fa-solid fa-chalkboard-user"></i><span data-i18n="nav_faculty">อาจารย์</span></div>
+            <div class="nav-item" onclick="showPage('account')" id="nav-account"><i class="fa-solid fa-user"></i><span data-i18n="nav_account">บัญชี</span></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ... (Constants) ...
+        const UNLOCK_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze-7Iq8PQ8oMlVbwPcYuglfLK8sVesN47yDk-d-KAlVDrnZOfoU8jNAoj3rEFFzRo5/exec";
+        
+        // --- เปลี่ยน URL เป็นตัวใหม่ล่าสุดที่ให้มา ---
+        const LOGIN_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyESjtc2hL1k9oSQW53Z8fYEOpyx4spEraImgon1i7Oy36N9NSTj7jPxKDcq8QzVFVT/exec";
+        
+        const CLASSROOM_API_URL = "https://script.google.com/macros/s/AKfycbxO8FIom58OxDAikFVL3ZyxLRhOGEUFxLulqP4VbTh4MGty99gHcLo6iOUVJ--z2X5l/exec";
+        const NOTIFICATION_API_URL = "https://script.google.com/macros/s/AKfycbzGfJwVK_eMjfYK0CpkLxNTYQCQLdhu4cavXu81vg5IIzpK993itcEFj1zPiVoyw5iM/exec";
+        
+        const APP_KEY = 'paramedic_scphub_v40_sheet_sync';
+        let userProfile = null;
+        let loginAttempts = 0;
+        const MAX_ATTEMPTS = 7;
+        let currentLang = localStorage.getItem(APP_KEY + '_LANG') || 'th';
+        
+        // --- Theme System ---
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const iconHome = document.getElementById('theme-icon-home');
+            const iconLogin = document.getElementById('theme-icon-login');
+            
+            if (theme === 'dark') {
+                if(iconHome) { iconHome.classList.remove('fa-moon'); iconHome.classList.add('fa-sun'); }
+                if(iconLogin) { iconLogin.classList.remove('fa-moon'); iconLogin.classList.add('fa-sun'); }
+            } else {
+                if(iconHome) { iconHome.classList.remove('fa-sun'); iconHome.classList.add('fa-moon'); }
+                if(iconLogin) { iconLogin.classList.remove('fa-sun'); iconLogin.classList.add('fa-moon'); }
+            }
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', currentTheme);
+            applyTheme(currentTheme);
+        }
+
+        // --- Student Data (Embedded) ---
+        const studentData = [
+            { id: "68206312001", prefix: "นางสาว", name: "กชพร เพ็งพันธ์", status: "normal" },
+            { id: "68206312002", prefix: "นางสาว", name: "กัลยารัตน์ เหลาคำ", status: "normal" },
+            { id: "68206312003", prefix: "นางสาว", name: "เกวลิน วงษ์แดง", status: "normal" },
+            { id: "68206312004", prefix: "นางสาว", name: "จุฑามาศ บัวสด", status: "normal" },
+            { id: "68206312005", prefix: "นางสาว", name: "ชนิสรา มีหนองใหญ่", status: "normal" },
+            { id: "68206312006", prefix: "นาย", name: "ณัชพล จันทร์ตั้ง", status: "normal" },
+            { id: "68206312007", prefix: "นางสาว", name: "ณัฏฐา ประภาสัย", status: "normal" },
+            { id: "68206312008", prefix: "นางสาว", name: "ธนพร พุดสีเสน", status: "normal" },
+            { id: "68206312009", prefix: "นาย", name: "ธนาคาร กงใจ", status: "normal" },
+            { id: "68206312010", prefix: "นางสาว", name: "ธารทิพย์ ปิ่นสุวรรณ์", status: "normal" },
+            { id: "68206312011", prefix: "นางสาว", name: "ธิดารัตน์ ล่ำสัน", status: "normal" },
+            { id: "68206312012", prefix: "นาย", name: "ธีรเทพ ศรีเครือดำ", status: "normal" },
+            { id: "68206312013", prefix: "นางสาว", name: "ธีรนันท์ นามเรืองศรี", status: "normal" },
+            { id: "68206312014", prefix: "นางสาว", name: "นฏกร คุณมี", status: "normal" },
+            { id: "68206312015", prefix: "นาย", name: "นันทวัฒน์ แก้วบัวดี", status: "normal" },
+            { id: "68206312016", prefix: "นางสาว", name: "นันธิกานต์ เพชรพราหมพะเนาว์", status: "normal" },
+            { id: "68206312017", prefix: "นางสาว", name: "นิรัชวรรณ ชาธิราช", status: "normal" },
+            { id: "68206312018", prefix: "นางสาว", name: "เบญทิพย์ ชาวคนดง", status: "normal" },
+            { id: "68206312019", prefix: "นางสาว", name: "ปรมาภรณ์ ประโยชน์มี", status: "normal" },
+            { id: "68206312020", prefix: "นาย", name: "ปรเมษ บุพศิริ", status: "normal" },
+            { id: "68206312021", prefix: "นางสาว", name: "ปริยากร สันติทอง", status: "normal" },
+            { id: "68206312022", prefix: "นางสาว", name: "ปัณฑิตา ไตรบัญญัติกุล", status: "normal" },
+            { id: "68206312023", prefix: "นางสาว", name: "ปิ่นมนัส นาคสี", status: "normal" },
+            { id: "68206312024", prefix: "นางสาว", name: "ปิยธิดา ประสาร", status: "normal" },
+            { id: "68206312025", prefix: "นางสาว", name: "ปุณยาพร นามณี", status: "normal" },
+            { id: "68206312026", prefix: "นาย", name: "พงศธร พันธ์สาย", status: "normal" },
+            { id: "68206312027", prefix: "นาย", name: "พงษ์ธร มาหา", status: "normal" },
+            { id: "68206312028", prefix: "นางสาว", name: "พัตรพิมล พงษ์สุระ", status: "normal" },
+            { id: "68206312029", prefix: "นาย", name: "ยุทธนันท์ สอฮอง", status: "normal" },
+            { id: "68206312030", prefix: "นางสาว", name: "วิรัชดา กองแก้ว", status: "resigned" },
+            { id: "68206312031", prefix: "นางสาว", name: "ศศิวิมล แซ่จึง", status: "normal" },
+            { id: "68206312032", prefix: "นางสาว", name: "สรณ์สิริ บุตชรินทร์", status: "normal" },
+            { id: "68206312033", prefix: "นางสาว", name: "สรัญยา พรรณขาม", status: "normal" },
+            { id: "68206312034", prefix: "นาย", name: "สิทธิโชค พรมโสภา", status: "normal" },
+            { id: "68206312035", prefix: "นางสาว", name: "สิริภัทร วงศ์จอม", status: "normal" },
+            { id: "68206312036", prefix: "นางสาว", name: "สิริวิภา จันทร์ถา", status: "normal" },
+            { id: "68206312037", prefix: "นางสาว", name: "สุชัญญา สนโศรก", status: "normal" },
+            { id: "68206312038", prefix: "นางสาว", name: "สุพัตรา คำภา", status: "normal" },
+            { id: "68206312039", prefix: "นางสาว", name: "สุวิชาดา โลหะสาร", status: "normal" },
+            { id: "68206312040", prefix: "นางสาว", name: "อนันต์ดา เพชรโน", status: "resigned" },
+            { id: "68206312041", prefix: "นางสาว", name: "อภิญญา สีลาดเลา", status: "normal" },
+            { id: "68206312042", prefix: "นาย", name: "อภิสิทธิ์ บุตรวงค์", status: "normal" },
+            { id: "68206312043", prefix: "นางสาว", name: "อรวรรยา ศรศิลป์", status: "normal" },
+            { id: "68206312044", prefix: "นาย", name: "อาจหาญ หาดคำ", status: "normal" }
+        ];
+
+        const translations = {
+            th: {
+                loading: "กำลังตรวจสอบข้อมูล...",
+                connecting: "(กำลังเชื่อมต่อกับฐานข้อมูล)",
+                lockout_title: "บัญชีถูกระงับชั่วคราว",
+                lockout_msg: "คุณใส่รหัสผิดเกิน 7 ครั้ง<br>กรุณาติดต่อเจ้าหน้าที่เพื่อขอรหัสปลดล็อค",
+                contact_admin: "ติดต่อเจ้าหน้าที่ (Line)",
+                enter_unlock: "ใส่รหัสปลดล็อก (จากเจ้าหน้าที่)",
+                btn_unlock: "ปลดล็อก",
+                login_welcome: "ยินดีต้อนรับ",
+                login_header: "เข้าสู่ระบบ (Login)",
+                label_id: "รหัสนักศึกษา (Student ID)",
+                label_pass: "รหัสผ่าน (Password)",
+                forgot_pass: "ลืมรหัสผ่าน?",
+                btn_login: "เข้าสู่ระบบ",
+                new_user_text: "ยังไม่เคยใช้งานระบบ?",
+                btn_register: "ลงทะเบียนใช้งานระบบ",
+                home_notice: "ประกาศสำคัญ",
+                home_notice_desc: "กำหนดการสอบกลางภาค 19-23 ม.ค. 2569<br>สอบปลายภาค 16-20 มี.ค. 2569",
+                home_quick_menu: "เมนูลัด",
+                menu_services: "บริการทั้งหมด",
+                menu_card: "บัตรนักศึกษา",
+                service_title: "บริการนักศึกษา",
+                service_subtitle: "เลือกเมนูที่ต้องการใช้งาน",
+                svc_grade: "ดูเกรด (MIS)",
+                svc_schedule: "ตารางเรียน",
+                svc_class: "ชั้นเรียน",
+                svc_activity: "กิจกรรมสาขา",
+                
+                svc_equip: "ยืม-คืนอุปกรณ์",
+                svc_fund_collect: "เก็บเงินห้อง",
+                svc_fund_withdraw: "เบิกเงินห้อง",
+
+                svc_leave: "ระบบลา",
+                svc_military: "ผ่อนผันทหาร",
+                svc_docs: "เอกสารโครงการ",
+                svc_edit: "แก้ไขข้อมูล",
+                svc_committee: "สมัครกรรมการ",
+                svc_card_req: "ขอทำบัตร",
+                svc_card_new: "ออกบัตรใหม่",
+                svc_comm_list: "คณะกรรมการ",
+                svc_map: "แผนผัง วสส.",
+                svc_admin: "ติดต่อผู้ดูแล",
+                svc_niems: "เว็บไซต์ สพฉ.",
+                svc_assoc: "สมาพันธ์ นศ.ฉพ.",
+                class_activity_title: "ชั้นเรียน / กิจกรรม",
+                cpr_title: "อบรม CPR ประจำปี",
+                status_open: "เปิดรับ",
+                btn_register_event: "ลงทะเบียน",
+                edit_info_title: "แก้ไขข้อมูลสุขภาพ",
+                label_phone: "เบอร์โทรศัพท์",
+                label_emer: "เบอร์ฉุกเฉิน",
+                btn_save_local: "บันทึกข้อมูล (ในเครื่อง)",
+                faculty_title: "คณาจารย์ประจำหลักสูตร",
+                contact_title: "ติดต่อเรา",
+                contact_main: "ข้อมูลติดต่อหลัก",
+                college_name: "วิทยาลัยการสาธารณสุขสิรินธร จ.อุบลฯ",
+                college_addr: "เลขที่ 187 หมู่ 10 ถนนสถลมาร์ค<br>ตำบลธาตุ อำเภอวารินชำราบ<br>จังหวัดอุบลราชธานี 34190",
+                account_title: "บัญชีผู้ใช้",
+                label_ice: "ฉุกเฉิน (ICE)",
+                health_info_title: "ข้อมูลสุขภาพ & ติดต่อ",
+                label_blood: "กรุ๊ปเลือด",
+                label_disease: "โรคประจำตัว",
+                label_addr: "ที่อยู่ / หอพัก",
+                btn_change_pass: "เปลี่ยนรหัสผ่าน",
+                btn_logout: "ออกจากระบบ",
+                nav_services: "บริการ",
+                nav_contact: "ติดต่อ",
+                nav_faculty: "อาจารย์",
+                nav_account: "บัญชี",
+                label_old_pass: "รหัสผ่านเดิม",
+                label_new_pass: "รหัสผ่านใหม่",
+                btn_save: "บันทึก",
+                alert_unlock_success: "✅ ปลดล็อกบัญชีสำเร็จ!",
+                alert_unlock_fail: "❌ รหัสปลดล็อกไม่ถูกต้อง",
+                alert_login_fail: "เข้าสู่ระบบไม่สำเร็จ",
+                alert_save_local: "บันทึกข้อมูลในเครื่องเรียบร้อย",
+                alert_reg_success: "สำเร็จ!",
+                alert_pass_wrong: "รหัสเดิมผิด",
+                alert_pass_success: "เปลี่ยนรหัสสำเร็จ",
+                logout_confirm_msg: "คุณต้องการออกจากระบบใช่หรือไม่?"
+            },
+            en: {
+                loading: "Checking data...",
+                connecting: "(Connecting to database)",
+                lockout_title: "Account Locked",
+                lockout_msg: "Too many failed attempts.<br>Please contact admin for unlock code.",
+                contact_admin: "Contact Admin (Line)",
+                enter_unlock: "Enter Unlock Code",
+                btn_unlock: "Unlock",
+                login_welcome: "Welcome",
+                login_header: "Login",
+                label_id: "Student ID",
+                label_pass: "Password",
+                forgot_pass: "Forgot Password?",
+                btn_login: "Login",
+                new_user_text: "New user?",
+                btn_register: "Register for System",
+                home_notice: "Important Notice",
+                home_notice_desc: "Midterm Exam 19-23 Jan 2026<br>Final Exam 16-20 Mar 2026",
+                home_quick_menu: "Quick Menu",
+                menu_services: "All Services",
+                menu_card: "Student Card",
+                service_title: "Student Services",
+                service_subtitle: "Select a menu",
+                svc_grade: "Grades (MIS)",
+                svc_schedule: "Schedule",
+                svc_class: "Classroom",
+                svc_activity: "Activities",
+                
+                svc_equip: "Borrow Equip",
+                svc_fund_collect: "Collect Fund",
+                svc_fund_withdraw: "Withdraw Fund",
+
+                svc_leave: "Leave System",
+                svc_military: "Military Draft",
+                svc_docs: "Documents",
+                svc_edit: "Edit Info",
+                svc_committee: "Join Committee",
+                svc_card_req: "Request Card",
+                svc_card_new: "New Card Issue",
+                svc_comm_list: "Committee List",
+                svc_map: "Campus Map",
+                svc_admin: "Contact Admin",
+                svc_niems: "NIEMS Website",
+                svc_assoc: "Student Assoc.",
+                class_activity_title: "Class / Activities",
+                cpr_title: "CPR Training",
+                status_open: "Open",
+                btn_register_event: "Register",
+                edit_info_title: "Edit Health Info",
+                label_phone: "Phone Number",
+                label_emer: "Emergency Phone",
+                btn_save_local: "Save Data (Local)",
+                faculty_title: "Faculty Members",
+                contact_title: "Contact Us",
+                contact_main: "Main Contact",
+                college_name: "Sirindhorn College of Public Health Ubon",
+                college_addr: "187 Moo 10 Sathollamark Rd.<br>That, Warin Chamrap<br>Ubon Ratchathani 34190",
+                account_title: "User Account",
+                label_ice: "Emergency (ICE)",
+                health_info_title: "Health & Contact",
+                label_blood: "Blood Group",
+                label_disease: "Disease",
+                label_addr: "Address / Dorm",
+                btn_change_pass: "Change Password",
+                btn_logout: "Logout",
+                nav_services: "Services",
+                nav_contact: "Contact",
+                nav_faculty: "Faculty",
+                nav_account: "Account",
+                label_old_pass: "Old Password",
+                label_new_pass: "New Password",
+                btn_save: "Save",
+                alert_unlock_success: "✅ Account Unlocked!",
+                alert_unlock_fail: "❌ Invalid Code",
+                alert_login_fail: "Login Failed",
+                alert_save_local: "Data saved locally",
+                alert_reg_success: "Success!",
+                alert_pass_wrong: "Wrong old password",
+                alert_pass_success: "Password changed",
+                logout_confirm_msg: "Do you really want to logout?"
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyLanguage(currentLang); 
+            applyTheme(currentTheme); 
+            
+            populateDateSelects(); 
+            
+            if (checkLockoutState()) return;
+            
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; checkAuth(); }, 600);
+            }, 2000);
+        });
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'th' ? 'en' : 'th';
+            localStorage.setItem(APP_KEY + '_LANG', currentLang);
+            applyLanguage(currentLang);
+        }
+
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key]; 
+                }
+            });
+            document.getElementById('lang-btn-text').innerText = lang === 'th' ? 'Language: TH' : 'Language: EN';
+        }
+
+        function checkLockoutState() {
+            const locked = localStorage.getItem(APP_KEY + '_LOCKED');
+            if (locked === 'true') {
+                document.getElementById('lockout-overlay').style.display = 'flex';
+                document.getElementById('splash-screen').style.display = 'none';
+                return true;
+            }
+            loginAttempts = parseInt(localStorage.getItem(APP_KEY + '_ATTEMPTS') || '0');
+            return false;
+        }
+
+        async function handleUnlock() {
+            const code = document.getElementById('unlockCodeInput').value;
+            const btn = document.querySelector('#lockout-overlay button.btn-danger'); 
+            
+            if (!code) { alert("Code required"); return; }
+
+            const originalText = btn.innerText;
+            btn.innerText = "...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(UNLOCK_SCRIPT_URL + "?action=unlock&code=" + code);
+                const data = await response.json();
+                
+                if (data.success === true) { 
+                    localStorage.removeItem(APP_KEY + '_LOCKED');
+                    localStorage.removeItem(APP_KEY + '_ATTEMPTS');
+                    localStorage.removeItem(APP_KEY + '_BAD_ACTION'); 
+                    alert(translations[currentLang].alert_unlock_success);
+                    location.reload();
+                } else {
+                    alert(translations[currentLang].alert_unlock_fail);
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Connection Error');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function incrementLoginAttempt() {
+            loginAttempts++;
+            localStorage.setItem(APP_KEY + '_ATTEMPTS', loginAttempts);
+            if (loginAttempts >= MAX_ATTEMPTS) {
+                localStorage.setItem(APP_KEY + '_LOCKED', 'true');
+                checkLockoutState();
+            }
+        }
+
+        // --- แก้ไขฟังก์ชัน Logout ให้ใช้ Modal แทน confirm ---
+        function logout() { 
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        }
+
+        function confirmLogout() {
+            localStorage.removeItem(APP_KEY); 
+            location.reload(); 
+        }
+
+        function finishLogout() {
+            location.reload();
+        }
+
+        // --- Helper สำหรับปุ่ม Admin ---
+        function openAdminCheck() {
+            // --- ใส่ Modal Admin Check ที่นี่ ---
+            const adminModal = new bootstrap.Modal(document.getElementById('adminCheckModal'));
+            adminModal.show();
+            fetchAdminData(); // เรียกฟังก์ชันดึงข้อมูล
+        }
+        
+        async function fetchAdminData() {
+            const content = document.getElementById('adminContent');
+            const loading = document.getElementById('adminLoading');
+            
+            content.innerHTML = '';
+            content.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                // เรียก Apps Script เพื่อดึงข้อมูลสถานะ
+                const response = await fetch(LOGIN_SCRIPT_URL + "?action=getEquipStatus");
+                const result = await response.json();
+
+                if (result.success) {
+                    renderAdminList(result.data);
+                } else {
+                    content.innerHTML = `<p class="text-danger text-center">เกิดข้อผิดพลาด: ${result.message}</p>`;
+                }
+            } catch (error) {
+                console.error(error);
+                content.innerHTML = '<p class="text-danger text-center">ไม่สามารถเชื่อมต่อข้อมูลได้</p>';
+            } finally {
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }
+        }
+
+        function renderAdminList(data) {
+            const content = document.getElementById('adminContent');
+            if (data.length === 0) {
+                content.innerHTML = '<div class="text-center text-muted py-3"><i class="fa-solid fa-box-open fa-2x mb-2"></i><br>ไม่มีรายการยืม-คืน</div>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            data.forEach((item, index) => {
+                const isReturned = item.action === "คืนอุปกรณ์";
+                const statusBadge = isReturned 
+                    ? '<span class="badge bg-success bg-opacity-10 text-success rounded-pill">คืนแล้ว</span>'
+                    : '<span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">ยังไม่คืน</span>';
+                
+                const btnAction = !isReturned 
+                    ? `<button class="btn btn-sm btn-outline-danger ms-2 rounded-pill" onclick="handleRemind('${item.name}', '${item.email}', '${item.item}')"><i class="fa-regular fa-bell me-1"></i> แจ้งเตือน</button>`
+                    : '';
+
+                // แปลงวันที่ให้สวยงาม
+                const dateObj = new Date(item.date);
+                const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString('th-TH') : item.date;
+
+                html += `
+                    <div class="list-group-item border-0 shadow-sm mb-2 rounded-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-primary">${item.name}</h6>
+                                <p class="mb-1 small text-muted"><i class="fa-solid fa-stethoscope me-1"></i> ${item.item}</p>
+                                <small class="text-secondary" style="font-size: 0.75rem;"><i class="fa-regular fa-clock me-1"></i> ${dateStr}</small>
+                            </div>
+                            <div class="text-end">
+                                ${statusBadge}
+                                <div class="mt-2">
+                                    ${btnAction}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        async function handleRemind(name, email, item) {
+            if (!confirm(`ต้องการส่งอีเมลแจ้งเตือนคุณ ${name} หรือไม่?`)) return;
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ส่ง...';
+            btn.disabled = true;
+
+            const payload = {
+                action: 'remindReturn',
+                name: name,
+                email: email,
+                item: item,
+                date: new Date().toLocaleDateString('th-TH')
+            };
+
+            try {
+                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
+                const response = await fetch(LOGIN_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert("✅ ส่งแจ้งเตือนเรียบร้อยแล้ว");
+                } else {
+                    alert("❌ ส่งไม่สำเร็จ: " + result.message);
+                }
+            } catch (error) {
+                alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function checkAuth() {
+            const data = localStorage.getItem(APP_KEY);
+            if (data) { 
+                userProfile = JSON.parse(data); 
+                enterApp(); 
+            } else { 
+                document.getElementById('login-screen').style.transform = 'translateY(0)'; 
+            }
+        }
+
+        async function handleManualLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('manualLoginId').value;
+            const pass = document.getElementById('manualLoginPass').value;
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            try {
+                const response = await fetch(LOGIN_SCRIPT_URL + "?action=login&id=" + id + "&password=" + pass);
+                const data = await response.json();
+                
+                // ซ่อน Loading ก่อน เพื่อจะโชว์ Modal
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if(data.success) {
+                    if (data.isBanned) {
+                            localStorage.setItem(APP_KEY + '_LOCKED', 'true');
+                            alert("บัญชีของท่านถูกระงับชั่วคราวเนื่องจากถูกรายงานเกินกำหนด");
+                            location.reload();
+                            return;
+                    }
+
+                    // บันทึกข้อมูลลงเครื่อง
+                    localStorage.removeItem(APP_KEY + '_ATTEMPTS');
+                    localStorage.removeItem(APP_KEY + '_BAD_ACTION');
+                    localStorage.setItem(APP_KEY, JSON.stringify(data.user));
+                    userProfile = data.user;
+
+                    // --- เรียก Modal แสดงผลแทนการ reload ทันที ---
+                    const successModal = new bootstrap.Modal(document.getElementById('loginSuccessModal'));
+                    successModal.show();
+                    
+                } else {
+                    incrementLoginAttempt();
+                    // แสดง Modal แจ้งเตือนเข้าสู่ระบบไม่สำเร็จ
+                    const failModal = new bootstrap.Modal(document.getElementById('loginFailModal'));
+                    failModal.show();
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-overlay').style.display = 'none';
+                alert("Server Error");
+            }
+        }
+
+        function finishLogin() {
+            location.reload(); // รีโหลดหน้าเว็บเพื่อเข้าสู่หน้าหลัก
+        }
+
+        function enterApp() {
+            document.getElementById('app-content').style.display = 'block';
+            updateUI();
+            showPage('home');
+            fetchNotifications(); 
+        }
+
+        function updateUI() {
+            if(!userProfile) return;
+            document.getElementById('card-name').innerText = "นศ.ฉพ. " + userProfile.name;
+            document.getElementById('card-id').innerText = userProfile.id;
+            document.getElementById('card-phone').innerText = userProfile.phone || "-";
+            document.getElementById('card-emer').innerText = userProfile.emergency || "-";
+            
+            document.getElementById('display-blood').innerText = userProfile.bloodType || "-";
+            document.getElementById('display-disease').innerText = userProfile.disease || "-";
+            document.getElementById('display-addr').innerText = userProfile.address || "-";
+            
+            if (userProfile.photo) document.getElementById('card-user-img').src = userProfile.photo;
+
+            // --- ตรวจสอบสิทธิ์แอดมิน ---
+            const admins = ["แอดมิน", "แอดมิน1", "แอดมิน2", "แอดมิน3"];
+            if (admins.some(adminName => userProfile.name.includes(adminName))) {
+                document.getElementById('adminCheckEquipBtn').style.display = 'block';
+            } else {
+                document.getElementById('adminCheckEquipBtn').style.display = 'none';
+            }
+        }
+
+        async function fetchNotifications() {
+            try {
+                if(NOTIFICATION_API_URL.includes("YOUR_NOTIFICATION_SCRIPT_ID")){
+                      console.warn("Please set NOTIFICATION_API_URL");
+                      updateNotificationUI([
+                          {title: "ยินดีต้อนรับ", detail: "กรุณาตั้งค่า URL ของ Script", type: "primary", date: "System"}
+                      ]);
+                      return;
+                }
+                const response = await fetch(NOTIFICATION_API_URL);
+                const data = await response.json();
+                updateNotificationUI(data);
+            } catch(e) {
+                console.error("Error fetching notifications", e);
+                document.getElementById('news-ticker-container').innerHTML = '<span class="news-item text-danger">ไม่สามารถโหลดข่าวสารได้</span>';
+                document.getElementById('notification-list').innerHTML = '<div class="text-center py-4 text-muted"><i class="fa-solid fa-triangle-exclamation mb-2"></i><p>โหลดข้อมูลไม่สำเร็จ</p></div>';
+            }
+        }
+
+        function updateNotificationUI(data) {
+            const badge = document.getElementById('noti-badge');
+            if(data.length > 0) {
+                badge.innerText = data.length;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            let tickerHtml = '';
+            data.forEach(item => {
+                let colorClass = 'text-warning'; 
+                if(item.type === 'danger') colorClass = 'text-danger';
+                if(item.type === 'success') colorClass = 'text-success';
+                tickerHtml += `<span class="news-item"><i class="fa-regular fa-circle-dot ${colorClass} me-1" style="font-size:8px;"></i> ${item.title}: ${item.detail}</span>`;
+            });
+            if(tickerHtml === '') tickerHtml = '<span class="news-item text-muted">ไม่มีประกาศใหม่</span>';
+            document.getElementById('news-ticker-container').innerHTML = tickerHtml;
+
+            let listHtml = '';
+            data.forEach(item => {
+                let textClass = 'text-primary';
+                if(item.type === 'danger') textClass = 'text-danger';
+                if(item.type === 'success') textClass = 'text-success';
+                
+                listHtml += `
+                    <a href="#" class="list-group-item list-group-item-action border-0 px-0">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 fw-bold ${textClass}">${item.title}</h6>
+                            <small class="text-muted">${item.date || ''}</small>
+                        </div>
+                        <p class="mb-1 small">${item.detail}</p>
+                    </a>
+                `;
+            });
+            if(listHtml === '') listHtml = '<div class="text-center py-4 text-muted"><p>ไม่มีการแจ้งเตือน</p></div>';
+            document.getElementById('notification-list').innerHTML = listHtml;
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            if (pageId !== 'home') document.getElementById('nav-' + pageId)?.classList.add('active');
+            
+            if(pageId === 'services') { 
+                toggleActivityView(false); 
+            }
+            if(pageId === 'account') {
+                toggleRegisterInfoView(false); 
+                fetchAccountData(); 
+            }
+            
+            window.scrollTo(0,0);
+        }
+
+        async function fetchAccountData() {
+            if (!userProfile || !userProfile.id) return;
+
+            try {
+                const response = await fetch(LOGIN_SCRIPT_URL + "?action=getAccountInfo&id=" + userProfile.id);
+                const data = await response.json();
+
+                if (data.isBanned) {
+                     localStorage.setItem(APP_KEY + '_LOCKED', 'true');
+                     alert("บัญชีของท่านถูกระงับชั่วคราวเนื่องจากถูกรายงานเกินกำหนด");
+                     location.reload();
+                     return;
+                }
+
+                if (data.success && data.accountData) {
+                    const info = data.accountData;
+                    userProfile.name = info.fullName; 
+                    userProfile.phone = info.phone;
+                    userProfile.emergency = info.emergency;
+                    userProfile.bloodType = info.bloodType;
+                    userProfile.address = info.dormitory; 
+                    userProfile.disease = info.disease; 
+
+                    localStorage.setItem(APP_KEY, JSON.stringify(userProfile));
+                    updateUI();
+                }
+            } catch (e) {
+                console.error("Failed to fetch account info", e);
+            }
+        }
+
+        function toggleActivityView(show) { document.getElementById('service-menu-view').style.display = show ? 'none' : 'block'; document.getElementById('activity-list-view').style.display = show ? 'block' : 'none'; }
+        
+        function toggleRegisterInfoView(show) { 
+            const mainView = document.getElementById('account-main-view');
+            const editView = document.getElementById('register-info-view');
+            
+            if (show) {
+                mainView.style.display = 'none';
+                editView.style.display = 'block';
+                document.getElementById('infoStudentId').value = userProfile.id;
+                document.getElementById('infoPhone').value = userProfile.phone || '';
+                document.getElementById('infoEmer').value = (userProfile.emergencyPhoneOnly || userProfile.emergency || '').replace(userProfile.emergency?.split(' ')[0] || '', '').trim(); 
+                document.getElementById('infoDisease').value = userProfile.disease || '';
+                document.getElementById('infoAddr').value = userProfile.address || '';
+            } else {
+                mainView.style.display = 'block';
+                editView.style.display = 'none';
+            }
+        }
+
+        async function handleInfoUpdate(e) {
+            e.preventDefault();
+            
+            const id = userProfile.id;
+            const phone = document.getElementById('infoPhone').value;
+            const emer = document.getElementById('infoEmer').value;
+            const disease = document.getElementById('infoDisease').value;
+            const addr = document.getElementById('infoAddr').value;
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "กำลังบันทึก...";
+            btn.disabled = true;
+
+            try {
+                const url = `${LOGIN_SCRIPT_URL}?action=updateProfile&id=${id}&phone=${encodeURIComponent(phone)}&emergency=${encodeURIComponent(emer)}&address=${encodeURIComponent(addr)}&disease=${encodeURIComponent(disease)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    userProfile.phone = phone;
+                    userProfile.emergency = emer; 
+                    userProfile.emergencyPhoneOnly = emer;
+                    userProfile.disease = disease;
+                    userProfile.address = addr;
+                    
+                    localStorage.setItem(APP_KEY, JSON.stringify(userProfile));
+                    
+                    updateUI(); 
+                    toggleRegisterInfoView(false); 
+                    alert("บันทึกข้อมูลลงระบบเรียบร้อย ✅");
+                } else {
+                    alert("บันทึกไม่สำเร็จ: " + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function reportPresence() { alert("ฟีเจอร์นี้ถูกปิดใช้งานชั่วคราว"); }
+
+        function joinActivity(btn) { if(btn.classList.contains('joined')){ if(confirm('Cancel?')){ btn.classList.remove('joined'); btn.innerText='ลงทะเบียน'; btn.classList.add('btn-join');}} else { btn.classList.remove('btn-join'); btn.classList.add('joined'); btn.innerText='ลงทะเบียนแล้ว'; alert(translations[currentLang].alert_reg_success);}}
+        function openChangePasswordModal() { new bootstrap.Modal(document.getElementById('changePasswordModal')).show(); }
+        
+        async function handleChangePassword(e) { 
+            e.preventDefault(); 
+            const oldPass = document.getElementById('oldPass').value;
+            const newPass = document.getElementById('newPass').value;
+
+            // --- เอาการเช็ครหัสเดิมแบบเก่าใน LocalStorage ออก ---
+            // if(oldPass !== userProfile.password) { ... } 
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "กำลังตรวจสอบ...";
+            btn.disabled = true;
+
+            try {
+                // ส่งทั้งรหัสเดิม (oldPass) และรหัสใหม่ (newPass) ไปให้ Apps Script เช็ค
+                const response = await fetch(LOGIN_SCRIPT_URL + "?action=changePass&id=" + userProfile.id + "&oldPass=" + encodeURIComponent(oldPass) + "&newPass=" + encodeURIComponent(newPass));
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.removeItem(APP_KEY); 
+                    
+                    // Hide Change Pass Modal
+                    const changeModal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    changeModal.hide();
+                    
+                    // Show Success Modal
+                    const successModal = new bootstrap.Modal(document.getElementById('changePassSuccessModal'));
+                    successModal.show();
+                } else {
+                    alert("แจ้งเตือน: " + (data.message || "ไม่สามารถเปลี่ยนรหัสได้"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("เชื่อมต่อเซิร์ฟเวอร์ล้มเหลว");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert(currentLang === 'th' ? 'กรุณาเลือกไฟล์รูปภาพ' : 'Please select an image file'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoData = e.target.result;
+                userProfile.photo = photoData;
+                localStorage.setItem(APP_KEY, JSON.stringify(userProfile));
+                document.getElementById('card-user-img').src = photoData;
+                alert(currentLang === 'th' ? 'อัปโหลดรูปภาพสำเร็จ!' : 'Photo uploaded successfully!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showQRCode() {
+            if (!userProfile) { alert("กรุณาเข้าสู่ระบบก่อน"); return; }
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '<div class="spinner-border text-primary" role="status"></div>'; 
+            const txt = "รหัสนักศึกษา: " + userProfile.id + "\nชื่อ-สกุล: " + userProfile.name + "\n\nหมายเหตุ: หลักฐานนี้แสดงว่าเป็นนักศึกษาหลักสูตรฉุกเฉินการแพทยบัณฑิต วสส.อุบลราชธานี";
+            const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&charset-source=UTF-8&data=${encodeURIComponent(txt)}`;
+            const img = new Image();
+            img.src = apiUrl;
+            img.className = "img-fluid rounded shadow-sm border";
+            img.onload = () => { container.innerHTML = ""; container.appendChild(img); };
+            img.onerror = () => { container.innerHTML = "<p class='text-danger'>ไม่สามารถโหลด QR Code ได้<br>(กรุณาเชื่อมต่ออินเทอร์เน็ต)</p>"; };
+            const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+            qrModal.show();
+        }
+
+        function openServiceWeb(title, url) {
+            if (!url) { alert('Coming Soon'); return; }
+            document.getElementById('serviceWebTitle').innerText = title;
+            document.getElementById('serviceWebLink').href = url;
+            const frame = document.getElementById('serviceWebFrame');
+            const loader = document.getElementById('serviceWebLoading');
+            frame.style.opacity = '0';
+            loader.style.display = 'block'; 
+            loader.innerHTML = '<div class="spinner-border text-primary mb-2" role="status"></div><div class="small text-muted">กำลังโหลด...</div>';
+            frame.src = url; 
+            const modal = new bootstrap.Modal(document.getElementById('serviceWebModal'));
+            modal.show();
+            frame.onload = function() { loader.style.display = 'none'; frame.style.opacity = '1'; };
+            setTimeout(() => { if(loader.style.display !== 'none') { loader.innerHTML = '<div class="text-danger"><i class="fa-solid fa-triangle-exclamation mb-2"></i><br>เว็บไซต์นี้อาจไม่รองรับการแสดงผลแบบย่อ<br>กรุณากดปุ่ม "เปิดภายนอก" ด้านบน</div>'; } }, 5000); 
+        }
+
+        async function handleClassroomSearch(e) {
+            e.preventDefault();
+            const subject = document.getElementById('searchSubject').value;
+            const resultArea = document.getElementById('searchResultArea');
+            resultArea.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="small text-muted mt-2">กำลังค้นหา...</p></div>';
+            try {
+                const response = await fetch(CLASSROOM_API_URL + `?subject=${encodeURIComponent(subject)}`);
+                const data = await response.json();
+                renderClassroomResults(data);
+            } catch (err) {
+                console.error(err);
+                resultArea.innerHTML = '<p class="text-danger text-center">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>';
+            }
+        }
+
+        function handleStudentSearch(e) {
+            e.preventDefault();
+            const input = document.getElementById('studentSearchInput').value.trim().toLowerCase();
+            const resultArea = document.getElementById('studentSearchResult');
+            if(!input) return;
+            resultArea.innerHTML = '<div class="spinner-border text-primary" role="status"></div><p class="small text-muted mt-2">กำลังค้นหา...</p>';
+            const found = studentData.filter(s => s.id.includes(input) || s.name.includes(input));
+            if (found.length === 0) {
+                resultArea.innerHTML = '<div class="text-danger py-3"><i class="fa-solid fa-circle-xmark fa-2x mb-2"></i><p>ไม่พบข้อมูลนักศึกษา</p></div>';
+            } else {
+                let html = '<div class="list-group text-start">';
+                found.forEach(s => {
+                    let badge = '';
+                    let textClass = 'text-dark';
+                    if(s.status === 'resigned') { badge = '<span class="badge bg-danger ms-2">ลาออก</span>'; textClass = 'text-muted text-decoration-line-through'; }
+                    html += `
+                        <div class="list-group-item border-0 shadow-sm mb-2 rounded-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box bg-light text-primary me-3" style="width:40px; height:40px; font-size:18px;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 ${textClass}">${s.prefix}${s.name} ${badge}</h6>
+                                    <small class="text-muted">รหัส: ${s.id}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                resultArea.innerHTML = html;
+            }
+        }
+
+        function copyMapLink(url) {
+            navigator.clipboard.writeText(url).then(() => { alert("คัดลอกลิงก์เรียบร้อยแล้ว ✅"); }).catch(err => {
+                console.error('Failed to copy: ', err);
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try { document.execCommand('copy'); alert("คัดลอกลิงก์เรียบร้อยแล้ว ✅"); } catch (err) { console.error('Fallback copy failed', err); alert("ไม่สามารถคัดลอกได้ (กรุณากดค้างที่ลิงก์เพื่อคัดลอกเอง)"); }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function renderClassroomResults(data) {
+            const resultArea = document.getElementById('searchResultArea');
+            if (!data || data.length === 0) { resultArea.innerHTML = '<div class="text-center text-muted py-4"><i class="fa-solid fa-circle-exclamation fa-2x mb-2 opacity-50"></i><p class="small">ไม่พบข้อมูลรายวิชานี้</p></div>'; return; }
+            let html = '<h6 class="fw-bold text-success mb-3">ผลการค้นหา (' + data.length + ')</h6>';
+            data.forEach(item => {
+                html += `
+                    <div class="card border-0 shadow-sm mb-2">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-primary mb-1">${item.subject}</h6>
+                            <div class="d-flex align-items-center text-danger small fw-bold mb-1">
+                                <i class="fa-solid fa-location-dot me-2"></i> ${item.room}
+                            </div>
+                            <div class="d-flex align-items-center text-muted small mb-2">
+                                <i class="fa-regular fa-comment-dots me-2"></i> ${item.remark || '-'}
+                            </div>
+                            ${item.map ? `
+                                <div class="mt-2 p-2 bg-light rounded-3 border">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fa-solid fa-map-pin text-danger me-2"></i>
+                                        <small class="fw-bold">พิกัดสถานที่เรียน</small>
+                                    </div>
+                                    <a href="${item.map}" target="_blank" class="d-block text-break small text-primary text-decoration-none">
+                                        ${item.map}
+                                    </a>
+                                    <div class="text-end mt-1">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" onclick="copyMapLink('${item.map}')">
+                                            <i class="fa-regular fa-copy"></i> คัดลอกลิงก์
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            resultArea.innerHTML = html;
+        }
+
+        function copyPaymentInfo() {
+           const accNo = '8692559120';
+           if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(accNo).then(() => { alert("คัดลอกเลขบัญชีเรียบร้อยแล้ว ✅"); }).catch(err => { fallbackCopyTextToClipboard(accNo); }); } else { fallbackCopyTextToClipboard(accNo); }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0"; textArea.style.left = "0"; textArea.style.position = "fixed";
+            document.body.appendChild(textArea); textArea.focus(); textArea.select();
+            try { const successful = document.execCommand('copy'); if(successful) alert("คัดลอกเลขบัญชีเรียบร้อยแล้ว ✅"); else alert("ไม่สามารถคัดลอกได้ (กรุณาจดเลขบัญชี)"); } catch (err) { alert("ไม่สามารถคัดลอกได้ (กรุณาจดเลขบัญชี)"); }
+            document.body.removeChild(textArea);
+        }
+
+        function copyAddress() {
+           const address = "วิทยาลัยการสาธารณสุขสิรินธร จ.อุบลราชธานี\nเลขที่ 187 หมู่ 10 ถนนสถลมาร์ค\nตำบลธาตุ อำเภอวารินชำราบ\nจังหวัดอุบลราชธานี 34190";
+           if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(address).then(() => { alert("คัดลอกที่อยู่เรียบร้อยแล้ว ✅"); }).catch(err => { fallbackCopyTextToClipboard(address); }); } else { fallbackCopyTextToClipboard(address); }
+        }
+        
+        // -------------------------------------------------------------
+        // ระบบลงทะเบียน (ส่งไป GAS URL ใหม่)
+        // -------------------------------------------------------------
+        function populateDateSelects() {
+            const daySelect = document.getElementById('regDobDay');
+            for (let i = 1; i <= 31; i++) { let day = i < 10 ? '0' + i : i; daySelect.innerHTML += `<option value="${day}">${day}</option>`; }
+            const yearSelect = document.getElementById('regDobYear');
+            const currentYearBE = new Date().getFullYear() + 543;
+            for (let i = currentYearBE - 15; i >= currentYearBE - 60; i--) { yearSelect.innerHTML += `<option value="${i}">${i}</option>`; }
+        }
+
+        function toggleOtherBloodGroup() {
+            const select = document.getElementById('regBloodGroup');
+            const otherInput = document.getElementById('regBloodGroupOther');
+            if (select.value === 'Other') { otherInput.style.display = 'block'; otherInput.required = true; } else { otherInput.style.display = 'none'; otherInput.required = false; otherInput.value = ''; }
+        }
+
+        async function handleRegisterSubmit(e) {
+            e.preventDefault();
+            
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const errorDiv = document.getElementById('passwordMatchError');
+            const pdpaCheckbox = document.getElementById('regPdpa');
+            
+            if (password !== confirmPassword) {
+                errorDiv.style.display = 'block';
+                document.getElementById('regConfirmPassword').focus();
+                return;
+            }
+            errorDiv.style.display = 'none';
+
+            if (!pdpaCheckbox.checked) {
+                alert("คุณต้องกดยินยอมให้ใช้ข้อมูลส่วนบุคคลตาม พรบ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนดำเนินการต่อ");
+                return;
+            }
+
+            const formData = {
+                action: 'register',
+                title: "นศ.ฉพ. " + document.getElementById('regTitle').value,
+                firstName: document.getElementById('regFirstName').value,
+                lastName: document.getElementById('regLastName').value,
+                studentId: document.getElementById('regStudentId').value,
+                dob: `${document.getElementById('regDobDay').value}/${document.getElementById('regDobMonth').value}/${document.getElementById('regDobYear').value}`,
+                address: document.getElementById('regAddress').value,
+                disease: document.getElementById('regDisease').value,
+                bloodGroup: document.getElementById('regBloodGroup').value === 'Other' ? document.getElementById('regBloodGroupOther').value : document.getElementById('regBloodGroup').value,
+                phone: document.getElementById('regPhone').value,
+                emer1: document.getElementById('regEmer1').value,
+                emer2: document.getElementById('regEmer2').value,
+                password: password
+            };
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "กำลังส่งข้อมูลลงระบบ...";
+            submitBtn.disabled = true;
+
+            try {
+                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
+                const response = await fetch(LOGIN_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" } 
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert("✅ ยื่นข้อมูลลงทะเบียนสำเร็จ! ข้อมูลถูกบันทึกลงฐานข้อมูลแล้ว");
+                    const modalEl = document.getElementById('registerModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                    e.target.reset();
+                    document.getElementById('regBloodGroupOther').style.display = 'none';
+                } else {
+                    alert("❌ เกิดข้อผิดพลาด: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง");
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // ระบบยืม-คืนอุปกรณ์ (ส่งไป GAS URL ใหม่)
+        // -------------------------------------------------------------
+        function openEquipModal() {
+            if (!userProfile || !userProfile.name) {
+                alert("กรุณาเข้าสู่ระบบก่อนใช้งานเมนูนี้");
+                return;
+            }
+            document.getElementById('equipName').value = "นศ.ฉพ. " + userProfile.name;
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('equipDate').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('equipAction').value = "";
+            document.getElementById('equipType').value = "";
+            document.getElementById('equipEmail').value = "";
+            
+            // --- ลบส่วน equipReturnDate ที่เคยเพิ่มไปออก ---
+            // document.getElementById('equipReturnDate').value = "";
+            
+            const equipModal = new bootstrap.Modal(document.getElementById('equipModal'));
+            equipModal.show();
+        }
+
+        async function handleEquipSubmit(e) {
+            e.preventDefault();
+            
+            const actionType = document.getElementById('equipAction').value;
+            const type = document.getElementById('equipType').value;
+            const name = document.getElementById('equipName').value;
+            const date = document.getElementById('equipDate').value;
+            const email = document.getElementById('equipEmail').value;
+            
+            // --- ลบตัวแปร returnDate ออก ---
+            // const returnDate = document.getElementById('equipReturnDate').value;
+            
+            const formData = {
+                action: 'equip',
+                equipAction: actionType,
+                type: type,
+                name: name,
+                date: date,
+                email: email
+                // returnDate: returnDate <--- เอาออก
+            };
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "กำลังส่งแจ้งเตือน...";
+            btn.disabled = true;
+            
+            try {
+                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
+                const response = await fetch(LOGIN_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const actionText = actionType === 'borrow' ? 'ยืม' : 'คืน';
+                    // Hide Equip Form Modal
+                    const formModal = bootstrap.Modal.getInstance(document.getElementById('equipModal'));
+                    formModal.hide();
+
+                    // Set message and Show Success Modal
+                    document.getElementById('equipSuccessMsg').innerText = `บันทึกการ${actionText}อุปกรณ์เรียบร้อยแล้ว\nแจ้งเตือนส่งไปยัง: ${email}`;
+                    const successModal = new bootstrap.Modal(document.getElementById('equipSuccessModal'));
+                    successModal.show();
+                    
+                    // Reset form
+                    e.target.reset();
+                    // document.getElementById('equipReturnDate').value = ""; <--- เอาออก
+                } else {
+                    alert("❌ เกิดข้อผิดพลาด: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ การเชื่อมต่อล้มเหลว ไม่สามารถบันทึกได้");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
