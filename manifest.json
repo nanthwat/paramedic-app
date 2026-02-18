@@ -1,0 +1,16 @@
+{
+  "name": "Paramedic SCPHUB ID",
+  "short_name": "Paramedic ID",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#009688",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
