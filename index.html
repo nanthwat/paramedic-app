@@ -209,7 +209,6 @@
         [data-theme="dark"] .bg-white { background-color: #1e1e1e !important; }
         [data-theme="dark"] .app-logo { background-color: #2d2d2d; }
 
-        /* แก้ไขให้ Pop-up ทับหน้า Login (Login = 9000) */
         .modal-backdrop { z-index: 9040 !important; }
         .modal { z-index: 9050 !important; }
     </style>
@@ -345,6 +344,16 @@
                             <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('ออกบัตรใหม่', 'https://forms.gle/Va1ao9e69r7U4qtq5')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto bg-warning bg-opacity-10 text-warning"><i class="fa-solid fa-address-card"></i></div><div class="fw-bold small" data-i18n="svc_card_new">ออกบัตรใหม่</div></div></div>
                             <div class="col-6 col-md-4 col-lg-3" data-bs-toggle="modal" data-bs-target="#committeeModal"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #ede7f6; color: #673ab7;"><i class="fa-solid fa-users-gear"></i></div><div class="fw-bold small" data-i18n="svc_comm_list">คณะกรรมการ</div></div></div>
                             <div class="col-6 col-md-4 col-lg-3" onclick="openServiceWeb('เว็บไซต์ สพฉ.', 'https://www.niems.go.th/1/SubWebsite/?id=38')"><div class="glass-card p-3 text-center"><div class="icon-box mx-auto" style="background-color: #e3f2fd; color: #1976d2;"><i class="fa-solid fa-globe"></i></div><div class="fw-bold small" data-i18n="svc_niems">เว็บไซต์ สพฉ.</div></div></div>
+                            
+                            <div class="col-6 col-md-4 col-lg-3" onclick="openVoteModal()">
+                                <div class="glass-card p-3 text-center">
+                                    <div class="icon-box mx-auto" style="background-color: #fce4ec; color: #e91e63;">
+                                        <i class="fa-solid fa-check-to-slot"></i>
+                                    </div>
+                                    <div class="fw-bold small" data-i18n="svc_vote">ออกเสียงโหวต</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div id="activity-list-view" style="display: none;">
@@ -423,8 +432,7 @@
                             <div class="spinner-border text-primary" role="status"></div>
                             <p class="small text-muted mt-2">กำลังโหลดข้อมูล...</p>
                         </div>
-                        <div id="adminContent" style="display: none; max-height: 400px; overflow-y: auto;">
-                            </div>
+                        <div id="adminContent" style="display: none; max-height: 400px; overflow-y: auto;"></div>
                     </div>
                 </div>
             </div>
@@ -534,7 +542,6 @@
                     </div>
                     <div class="modal-body">
                         <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
-                            
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">ข้อมูลส่วนตัว</label>
                                 <div class="input-group mb-2 shadow-sm">
@@ -551,12 +558,10 @@
                                     <div class="col-6"><input type="text" id="regLastName" class="form-control border-0 shadow-sm" placeholder="สกุล" required style="background-color: var(--input-bg); color: var(--text-main);"></div>
                                 </div>
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">รหัสนักศึกษา</label>
                                 <input type="number" id="regStudentId" class="form-control border-0 shadow-sm" placeholder="6XXXXXX" required style="background-color: var(--input-bg); color: var(--text-main);">
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">วัน/เดือน/ปีเกิด (ใช้ พ.ศ. เท่านั้น)</label>
                                 <div class="row g-2">
@@ -589,17 +594,14 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">ที่อยู่ที่ติดต่อได้</label>
                                 <textarea id="regAddress" class="form-control border-0 shadow-sm" rows="2" required style="background-color: var(--input-bg); color: var(--text-main);"></textarea>
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">โรคประจำตัว (ถ้าไม่มีให้ระบุ -)</label>
                                 <input type="text" id="regDisease" class="form-control border-0 shadow-sm" placeholder="ระบุโรคประจำตัว" required style="background-color: var(--input-bg); color: var(--text-main);">
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">หมู่เลือด</label>
                                 <select id="regBloodGroup" class="form-select border-0 shadow-sm mb-2" onchange="toggleOtherBloodGroup()" required style="background-color: var(--input-bg); color: var(--text-main);">
@@ -612,28 +614,24 @@
                                 </select>
                                 <input type="text" id="regBloodGroupOther" class="form-control border-0 shadow-sm" placeholder="โปรดระบุหมู่เลือดของคุณ" style="display: none; background-color: var(--input-bg); color: var(--text-main);">
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">ข้อมูลการติดต่อ</label>
                                 <input type="tel" id="regPhone" class="form-control border-0 shadow-sm mb-2" placeholder="10. โทรศัพท์มือถือ" required style="background-color: var(--input-bg); color: var(--text-main);">
                                 <input type="tel" id="regEmer1" class="form-control border-0 shadow-sm mb-2" placeholder="11. โทรศัพท์ฉุกเฉิน 1" required style="background-color: var(--input-bg); color: var(--text-main);">
                                 <input type="tel" id="regEmer2" class="form-control border-0 shadow-sm" placeholder="12. โทรศัพท์ฉุกเฉิน 2 (ถ้ามี)" style="background-color: var(--input-bg); color: var(--text-main);">
                             </div>
-
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">ตั้งรหัสผ่านสำหรับเข้าสู่ระบบ</label>
                                 <input type="password" id="regPassword" class="form-control border-0 shadow-sm mb-2" placeholder="13. ตั้งรหัสผ่าน" required minlength="6" style="background-color: var(--input-bg); color: var(--text-main);">
                                 <input type="password" id="regConfirmPassword" class="form-control border-0 shadow-sm" placeholder="14. ยืนยันรหัสผ่าน" required minlength="6" style="background-color: var(--input-bg); color: var(--text-main);">
                                 <div id="passwordMatchError" class="text-danger small mt-2 fw-bold" style="display: none;"><i class="fa-solid fa-triangle-exclamation"></i> รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน!</div>
                             </div>
-
                             <div class="mb-4 form-check mt-4 p-3 rounded-3" style="background-color: rgba(0, 150, 136, 0.1);">
                                 <input type="checkbox" class="form-check-input ms-0 me-2" id="regPdpa" required style="border-color: var(--primary-solid);">
                                 <label class="form-check-label small text-main" for="regPdpa" style="font-size: 0.8rem; line-height: 1.4;">
                                     ข้าพเจ้ายินยอมให้ใช้ข้อมูลส่วนบุคคลตาม พรบ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) เพื่อใช้ประโยชน์ในระบบสารสนเทศและการจัดการศึกษาของหลักสูตรฉุกเฉินการแพทย์เท่านั้น
                                 </label>
                             </div>
-
                             <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: var(--primary-grad); border: none; font-size: 16px;">ยืนยันการลงทะเบียน</button>
                         </form>
                     </div>
@@ -650,7 +648,6 @@
                     </div>
                     <div class="modal-body">
                         <form id="equipForm" onsubmit="handleEquipSubmit(event)">
-                            
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">1. รายการที่ต้องการ</label>
                                 <select class="form-select border-0 shadow-sm" id="equipAction" required style="background-color: var(--input-bg); color: var(--text-main);">
@@ -659,7 +656,6 @@
                                     <option value="return">คืนอุปกรณ์ (Return)</option>
                                 </select>
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">2. ชื่ออุปกรณ์ที่ต้องการ</label>
                                 <div class="input-group shadow-sm">
@@ -667,7 +663,6 @@
                                     <input type="text" id="equipType" class="form-control border-0" placeholder="โปรดระบุชื่ออุปกรณ์..." required style="background-color: var(--input-bg); color: var(--text-main);">
                                 </div>
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">3. ชื่อผู้ยืม/คืน</label>
                                 <div class="input-group shadow-sm">
@@ -675,12 +670,10 @@
                                     <input type="text" id="equipName" class="form-control border-0" readonly style="background-color: #e9ecef; color: #495057; font-weight: bold;">
                                 </div>
                             </div>
-                            
                             <div class="mb-3">
                                 <label class="small text-muted mb-1">4. วันที่ทำรายการ (วัน/เดือน/ปี)</label>
                                 <input type="date" id="equipDate" class="form-control border-0 shadow-sm" required style="background-color: var(--input-bg); color: var(--text-main);">
                             </div>
-                            
                             <div class="mb-4">
                                 <label class="small text-muted mb-1">5. อีเมลในการรับแจ้งเตือน</label>
                                 <div class="input-group shadow-sm">
@@ -689,8 +682,66 @@
                                 </div>
                                 <small class="text-danger mt-1 d-block" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกอีเมลที่ใช้งานจริง เพื่อรับหลักฐานการทำรายการ!</small>
                             </div>
-                            
                             <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: var(--primary-grad); border: none; font-size: 16px;">ยืนยันการทำรายการ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="voteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-main">
+                            <i class="fa-solid fa-check-to-slot me-2" style="color: #e91e63;"></i>
+                            <span data-i18n="svc_vote">ออกเสียงโหวต</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="voteForm" onsubmit="handleVoteSubmit(event)">
+                            <div class="mb-4">
+                                <label class="small text-muted mb-2 fw-bold">ท่านต้องการแสดงความคิดเห็นเรื่องใด</label>
+                                <select class="form-select border-0 shadow-sm py-2" id="voteTopic" onchange="handleVoteTopicChange()" required style="background-color: var(--input-bg); color: var(--text-main);">
+                                    <option value="" disabled selected>-- เลือกหัวข้อโหวต --</option>
+                                    <option value="1">1. ความเห็นการตัดชุดสครับร่วมกับหลักสูตร</option>
+                                    <option value="2">2. ความเห็นการซื้อหูฟังทางการแพทย์ร่วมกับหลักสูตร</option>
+                                    <option value="3" class="text-danger fw-bold">3. ความเห็นการปรับตำแหน่งคณะกรรมการชั้นปีใหม่ (ไม่ระบุตัวตน)</option>
+                                </select>
+                            </div>
+                            <div id="voteFields" style="display: none; animation: fadeIn 0.3s ease;">
+                                <hr class="opacity-10 mb-3">
+                                
+                                <div class="mb-3" id="voteNameGroup">
+                                    <label class="small text-muted mb-1">1. ชื่อ-สกุล</label>
+                                    <div class="input-group shadow-sm">
+                                        <span class="input-group-text bg-light text-muted border-0"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" id="voteName" class="form-control border-0" readonly style="background-color: #e9ecef; color: #495057; font-weight: bold;">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="small text-muted mb-2 fw-bold" id="voteOpinionLabel">2. ท่านเห็นควรอย่างไร</label>
+                                    <div class="d-flex gap-3 bg-light p-2 rounded-3 border">
+                                        <div class="form-check custom-radio">
+                                            <input class="form-check-input border-secondary" type="radio" name="voteOpinion" id="voteOpinionAgree" value="เห็นชอบ" required>
+                                            <label class="form-check-label text-success fw-bold" for="voteOpinionAgree" id="voteOpinionAgreeLabel">เห็นชอบ</label>
+                                        </div>
+                                        <div class="form-check custom-radio">
+                                            <input class="form-check-input border-secondary" type="radio" name="voteOpinion" id="voteOpinionDisagree" value="ไม่เห็นชอบ" required>
+                                            <label class="form-check-label text-danger fw-bold" for="voteOpinionDisagree" id="voteOpinionDisagreeLabel">ไม่เห็นชอบ</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="small text-muted mb-1 fw-bold" id="voteReasonLabel">3. เหตุผลอื่นที่ต้องการระบุ</label>
+                                    <textarea id="voteReason" class="form-control border-0 shadow-sm" rows="3" placeholder="ระบุเหตุผล (ถ้ามี)..." style="background-color: var(--input-bg); color: var(--text-main);"></textarea>
+                                </div>
+                                <button type="submit" class="btn w-100 py-3 rounded-4 text-white fw-bold shadow-sm" style="background: linear-gradient(135deg, #e91e63 0%, #ff8a80 100%); border: none; font-size: 16px;">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> ส่งผลโหวต
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -708,11 +759,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ... (Constants) ...
         const UNLOCK_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze-7Iq8PQ8oMlVbwPcYuglfLK8sVesN47yDk-d-KAlVDrnZOfoU8jNAoj3rEFFzRo5/exec";
         
-        // --- เปลี่ยน URL เป็นตัวใหม่ล่าสุดที่ให้มา ---
-        const LOGIN_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyESjtc2hL1k9oSQW53Z8fYEOpyx4spEraImgon1i7Oy36N9NSTj7jPxKDcq8QzVFVT/exec";
+        // --- เปลี่ยน URL เป็นตัวล่าสุดที่ให้มา ---
+        const LOGIN_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9WHmYCXK7skN6hdmNo3Ms8GPOWEC2X41f2NVAEuDQzzzMyLMbof5VfTX1H5msiyr5/exec";
         
         const CLASSROOM_API_URL = "https://script.google.com/macros/s/AKfycbxO8FIom58OxDAikFVL3ZyxLRhOGEUFxLulqP4VbTh4MGty99gHcLo6iOUVJ--z2X5l/exec";
         const NOTIFICATION_API_URL = "https://script.google.com/macros/s/AKfycbzGfJwVK_eMjfYK0CpkLxNTYQCQLdhu4cavXu81vg5IIzpK993itcEFj1zPiVoyw5iM/exec";
@@ -723,7 +773,6 @@
         const MAX_ATTEMPTS = 7;
         let currentLang = localStorage.getItem(APP_KEY + '_LANG') || 'th';
         
-        // --- Theme System ---
         let currentTheme = localStorage.getItem('theme') || 'light';
 
         function applyTheme(theme) {
@@ -746,7 +795,6 @@
             applyTheme(currentTheme);
         }
 
-        // --- Student Data (Embedded) ---
         const studentData = [
             { id: "68206312001", prefix: "นางสาว", name: "กชพร เพ็งพันธ์", status: "normal" },
             { id: "68206312002", prefix: "นางสาว", name: "กัลยารัตน์ เหลาคำ", status: "normal" },
@@ -822,11 +870,9 @@
                 svc_schedule: "ตารางเรียน",
                 svc_class: "ชั้นเรียน",
                 svc_activity: "กิจกรรมสาขา",
-                
                 svc_equip: "ยืม-คืนอุปกรณ์",
                 svc_fund_collect: "เก็บเงินห้อง",
                 svc_fund_withdraw: "เบิกเงินห้อง",
-
                 svc_leave: "ระบบลา",
                 svc_military: "ผ่อนผันทหาร",
                 svc_docs: "เอกสารโครงการ",
@@ -839,6 +885,7 @@
                 svc_admin: "ติดต่อผู้ดูแล",
                 svc_niems: "เว็บไซต์ สพฉ.",
                 svc_assoc: "สมาพันธ์ นศ.ฉพ.",
+                svc_vote: "ออกเสียงโหวต",
                 class_activity_title: "ชั้นเรียน / กิจกรรม",
                 cpr_title: "อบรม CPR ประจำปี",
                 status_open: "เปิดรับ",
@@ -903,11 +950,9 @@
                 svc_schedule: "Schedule",
                 svc_class: "Classroom",
                 svc_activity: "Activities",
-                
                 svc_equip: "Borrow Equip",
                 svc_fund_collect: "Collect Fund",
                 svc_fund_withdraw: "Withdraw Fund",
-
                 svc_leave: "Leave System",
                 svc_military: "Military Draft",
                 svc_docs: "Documents",
@@ -920,6 +965,7 @@
                 svc_admin: "Contact Admin",
                 svc_niems: "NIEMS Website",
                 svc_assoc: "Student Assoc.",
+                svc_vote: "Vote / Poll",
                 class_activity_title: "Class / Activities",
                 cpr_title: "CPR Training",
                 status_open: "Open",
@@ -1041,7 +1087,6 @@
             }
         }
 
-        // --- แก้ไขฟังก์ชัน Logout ให้ใช้ Modal แทน confirm ---
         function logout() { 
             const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
             logoutModal.show();
@@ -1056,12 +1101,10 @@
             location.reload();
         }
 
-        // --- Helper สำหรับปุ่ม Admin ---
         function openAdminCheck() {
-            // --- ใส่ Modal Admin Check ที่นี่ ---
             const adminModal = new bootstrap.Modal(document.getElementById('adminCheckModal'));
             adminModal.show();
-            fetchAdminData(); // เรียกฟังก์ชันดึงข้อมูล
+            fetchAdminData();
         }
         
         async function fetchAdminData() {
@@ -1073,7 +1116,6 @@
             loading.style.display = 'block';
 
             try {
-                // เรียก Apps Script เพื่อดึงข้อมูลสถานะ
                 const response = await fetch(LOGIN_SCRIPT_URL + "?action=getEquipStatus");
                 const result = await response.json();
 
@@ -1109,7 +1151,6 @@
                     ? `<button class="btn btn-sm btn-outline-danger ms-2 rounded-pill" onclick="handleRemind('${item.name}', '${item.email}', '${item.item}')"><i class="fa-regular fa-bell me-1"></i> แจ้งเตือน</button>`
                     : '';
 
-                // แปลงวันที่ให้สวยงาม
                 const dateObj = new Date(item.date);
                 const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString('th-TH') : item.date;
 
@@ -1152,7 +1193,6 @@
             };
 
             try {
-                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
                 const response = await fetch(LOGIN_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
@@ -1194,7 +1234,6 @@
                 const response = await fetch(LOGIN_SCRIPT_URL + "?action=login&id=" + id + "&password=" + pass);
                 const data = await response.json();
                 
-                // ซ่อน Loading ก่อน เพื่อจะโชว์ Modal
                 document.getElementById('loading-overlay').style.display = 'none';
 
                 if(data.success) {
@@ -1205,19 +1244,16 @@
                             return;
                     }
 
-                    // บันทึกข้อมูลลงเครื่อง
                     localStorage.removeItem(APP_KEY + '_ATTEMPTS');
                     localStorage.removeItem(APP_KEY + '_BAD_ACTION');
                     localStorage.setItem(APP_KEY, JSON.stringify(data.user));
                     userProfile = data.user;
 
-                    // --- เรียก Modal แสดงผลแทนการ reload ทันที ---
                     const successModal = new bootstrap.Modal(document.getElementById('loginSuccessModal'));
                     successModal.show();
                     
                 } else {
                     incrementLoginAttempt();
-                    // แสดง Modal แจ้งเตือนเข้าสู่ระบบไม่สำเร็จ
                     const failModal = new bootstrap.Modal(document.getElementById('loginFailModal'));
                     failModal.show();
                 }
@@ -1229,7 +1265,7 @@
         }
 
         function finishLogin() {
-            location.reload(); // รีโหลดหน้าเว็บเพื่อเข้าสู่หน้าหลัก
+            location.reload(); 
         }
 
         function enterApp() {
@@ -1252,7 +1288,6 @@
             
             if (userProfile.photo) document.getElementById('card-user-img').src = userProfile.photo;
 
-            // --- ตรวจสอบสิทธิ์แอดมิน ---
             const admins = ["แอดมิน", "แอดมิน1", "แอดมิน2", "แอดมิน3"];
             if (admins.some(adminName => userProfile.name.includes(adminName))) {
                 document.getElementById('adminCheckEquipBtn').style.display = 'block';
@@ -1440,27 +1475,21 @@
             const oldPass = document.getElementById('oldPass').value;
             const newPass = document.getElementById('newPass').value;
 
-            // --- เอาการเช็ครหัสเดิมแบบเก่าใน LocalStorage ออก ---
-            // if(oldPass !== userProfile.password) { ... } 
-
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = "กำลังตรวจสอบ...";
             btn.disabled = true;
 
             try {
-                // ส่งทั้งรหัสเดิม (oldPass) และรหัสใหม่ (newPass) ไปให้ Apps Script เช็ค
                 const response = await fetch(LOGIN_SCRIPT_URL + "?action=changePass&id=" + userProfile.id + "&oldPass=" + encodeURIComponent(oldPass) + "&newPass=" + encodeURIComponent(newPass));
                 const data = await response.json();
 
                 if (data.success) {
                     localStorage.removeItem(APP_KEY); 
                     
-                    // Hide Change Pass Modal
                     const changeModal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
                     changeModal.hide();
                     
-                    // Show Success Modal
                     const successModal = new bootstrap.Modal(document.getElementById('changePassSuccessModal'));
                     successModal.show();
                 } else {
@@ -1639,9 +1668,6 @@
            if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(address).then(() => { alert("คัดลอกที่อยู่เรียบร้อยแล้ว ✅"); }).catch(err => { fallbackCopyTextToClipboard(address); }); } else { fallbackCopyTextToClipboard(address); }
         }
         
-        // -------------------------------------------------------------
-        // ระบบลงทะเบียน (ส่งไป GAS URL ใหม่)
-        // -------------------------------------------------------------
         function populateDateSelects() {
             const daySelect = document.getElementById('regDobDay');
             for (let i = 1; i <= 31; i++) { let day = i < 10 ? '0' + i : i; daySelect.innerHTML += `<option value="${day}">${day}</option>`; }
@@ -1698,7 +1724,6 @@
             submitBtn.disabled = true;
 
             try {
-                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
                 const response = await fetch(LOGIN_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(formData),
@@ -1726,9 +1751,6 @@
             }
         }
 
-        // -------------------------------------------------------------
-        // ระบบยืม-คืนอุปกรณ์ (ส่งไป GAS URL ใหม่)
-        // -------------------------------------------------------------
         function openEquipModal() {
             if (!userProfile || !userProfile.name) {
                 alert("กรุณาเข้าสู่ระบบก่อนใช้งานเมนูนี้");
@@ -1744,9 +1766,6 @@
             document.getElementById('equipType').value = "";
             document.getElementById('equipEmail').value = "";
             
-            // --- ลบส่วน equipReturnDate ที่เคยเพิ่มไปออก ---
-            // document.getElementById('equipReturnDate').value = "";
-            
             const equipModal = new bootstrap.Modal(document.getElementById('equipModal'));
             equipModal.show();
         }
@@ -1760,9 +1779,6 @@
             const date = document.getElementById('equipDate').value;
             const email = document.getElementById('equipEmail').value;
             
-            // --- ลบตัวแปร returnDate ออก ---
-            // const returnDate = document.getElementById('equipReturnDate').value;
-            
             const formData = {
                 action: 'equip',
                 equipAction: actionType,
@@ -1770,7 +1786,6 @@
                 name: name,
                 date: date,
                 email: email
-                // returnDate: returnDate <--- เอาออก
             };
 
             const btn = e.target.querySelector('button[type="submit"]');
@@ -1779,7 +1794,6 @@
             btn.disabled = true;
             
             try {
-                // แก้ไข fetch ให้ใช้ header: text/plain;charset=utf-8 เพื่อเลี่ยง CORS
                 const response = await fetch(LOGIN_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(formData),
@@ -1790,18 +1804,14 @@
                 
                 if (data.success) {
                     const actionText = actionType === 'borrow' ? 'ยืม' : 'คืน';
-                    // Hide Equip Form Modal
                     const formModal = bootstrap.Modal.getInstance(document.getElementById('equipModal'));
                     formModal.hide();
 
-                    // Set message and Show Success Modal
                     document.getElementById('equipSuccessMsg').innerText = `บันทึกการ${actionText}อุปกรณ์เรียบร้อยแล้ว\nแจ้งเตือนส่งไปยัง: ${email}`;
                     const successModal = new bootstrap.Modal(document.getElementById('equipSuccessModal'));
                     successModal.show();
                     
-                    // Reset form
                     e.target.reset();
-                    // document.getElementById('equipReturnDate').value = ""; <--- เอาออก
                 } else {
                     alert("❌ เกิดข้อผิดพลาด: " + data.message);
                 }
@@ -1810,6 +1820,118 @@
                 alert("❌ การเชื่อมต่อล้มเหลว ไม่สามารถบันทึกได้");
             } finally {
                 btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // --- ระบบโหวต (Voting System) ---
+        function openVoteModal() {
+            if (!userProfile || !userProfile.name) {
+                alert(currentLang === 'th' ? "กรุณาเข้าสู่ระบบก่อนโหวต" : "Please login to vote");
+                return;
+            }
+            document.getElementById('voteForm').reset();
+            document.getElementById('voteFields').style.display = 'none';
+            
+            const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+            modal.show();
+        }
+
+        function handleVoteTopicChange() {
+            const topic = document.getElementById('voteTopic').value;
+            const fields = document.getElementById('voteFields');
+            const nameGroup = document.getElementById('voteNameGroup');
+            
+            const opinionLabel = document.getElementById('voteOpinionLabel');
+            const agreeInput = document.getElementById('voteOpinionAgree');
+            const agreeLabel = document.getElementById('voteOpinionAgreeLabel');
+            const disagreeInput = document.getElementById('voteOpinionDisagree');
+            const disagreeLabel = document.getElementById('voteOpinionDisagreeLabel');
+            const reasonLabel = document.getElementById('voteReasonLabel');
+            
+            if (!topic) {
+                fields.style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('voteName').value = "นศ.ฉพ. " + userProfile.name;
+            
+            if (topic === "1" || topic === "2") {
+                nameGroup.style.display = 'block'; 
+                opinionLabel.innerText = "2. ท่านเห็นควรอย่างไร";
+                agreeInput.value = "เห็นชอบ";
+                agreeLabel.innerText = "เห็นชอบ";
+                disagreeInput.value = "ไม่เห็นชอบ";
+                disagreeLabel.innerText = "ไม่เห็นชอบ";
+                reasonLabel.innerText = "3. เหตุผลอื่นที่ต้องการระบุ";
+            } else if (topic === "3") {
+                nameGroup.style.display = 'none'; 
+                document.getElementById('voteName').value = "ไม่ระบุตัวตน (Anonymous)";
+                opinionLabel.innerHTML = '1. ต้องการปรับ/เปลี่ยนตำแหน่งหรือไม่ <span class="badge bg-danger ms-2">โหมดไม่ระบุตัวตน</span>';
+                agreeInput.value = "เห็นควร";
+                agreeLabel.innerText = "เห็นควร";
+                disagreeInput.value = "ไม่เห็นควร";
+                disagreeLabel.innerText = "ไม่เห็นควร";
+                reasonLabel.innerText = "2. อื่นๆ โปรดระบุ";
+            }
+            
+            fields.style.display = 'block';
+        }
+
+        async function handleVoteSubmit(e) {
+            e.preventDefault();
+            
+            const topicSelect = document.getElementById('voteTopic');
+            const topicText = topicSelect.options[topicSelect.selectedIndex].text;
+            
+            let name = document.getElementById('voteName').value;
+            if(topicSelect.value === "3") {
+                name = "ไม่ระบุตัวตน (Anonymous)";
+            }
+
+            const opinion = document.querySelector('input[name="voteOpinion"]:checked').value;
+            const reason = document.getElementById('voteReason').value || "-";
+            const timestamp = new Date().toLocaleString('th-TH');
+            
+            const formData = {
+                action: 'submitVote',
+                topic: topicText,
+                name: name,
+                opinion: opinion,
+                reason: reason,
+                timestamp: timestamp
+            };
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>กำลังบันทึก...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(LOGIN_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('voteModal'));
+                    modal.hide();
+                    
+                    alert(currentLang === 'th' ? "✅ บันทึกความเห็นของคุณเรียบร้อยแล้ว ขอบคุณที่ร่วมโหวตครับ" : "✅ Vote submitted successfully. Thank you!");
+                    
+                    e.target.reset();
+                    document.getElementById('voteFields').style.display = 'none';
+                } else {
+                    alert("❌ เกิดข้อผิดพลาด: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ การเชื่อมต่อล้มเหลว ไม่สามารถบันทึกได้");
+            } finally {
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
